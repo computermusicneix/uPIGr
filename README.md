@@ -1,2 +1,2 @@
-# upigr
+# UPIGR
 Unité Polyagogique Informatique GonzoRobot
