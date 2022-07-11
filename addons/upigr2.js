@@ -78,7 +78,7 @@ function parser(code2) {
   // in@ file .. [insert local text file on code editor]
 
   if(codeArray1[0] == "in"){
-    let file_direction = '../ugs/'+codeArray1[1];
+    let file_direction = '../uPIGr/ugs/'+codeArray1[1];
     let file_direction2 = file_direction.replace(" ",""); 
     fetch(file_direction2)
       .then(response => response.text())
@@ -115,7 +115,7 @@ function parser(code2) {
 			// post filename on postwindow
 			insertToPostWindow(split2[1]);
 			// interpret file
-			let file_direction = '../ugs/'+split2[1];
+			let file_direction = '../uPIGr/ugs/'+split2[1];
 			let file_direction2 = file_direction.replace(" ","");
 			    fetch(file_direction2)
 			      .then(response => response.text())
