@@ -1,0 +1,7 @@
+draw@
+  push();
+  translate(width/2, height/2);
+  rotate(frameCount / -100.0);
+  upigrPoly(0, 0, 70, 7);
+  pop();
+..

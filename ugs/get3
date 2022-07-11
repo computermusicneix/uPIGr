@@ -1,0 +1,10 @@
+eval@
+loop = new Tone.Loop(function(time) {
+  size++;
+  vol = upigrMap(size,0.0,300.0,-100,-12);
+  osc.volume.value = vol;
+  post1(size);
+  post2(vol);
+  if(size == 300.0){size = 0.0;};
+}, 0.125).start(0);
+..

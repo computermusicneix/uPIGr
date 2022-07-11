@@ -1,0 +1,5 @@
+draw@
+  fill(color('red'));
+  rectMode(CENTER);
+  rect(width/2, height/2, width/10, height/10);
+..

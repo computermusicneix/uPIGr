@@ -1,0 +1,5 @@
+eval@
+osc = new Tone.Oscillator(440, "sine").toDestination().start();
+osc.volume.value = -120;
+size = 0.0;
+..
