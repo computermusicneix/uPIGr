@@ -1,0 +1,178 @@
+
+uPIGr 2.0 Manual
+Miquel Parera & Gonzorobot
+2022.07
+License: MIT
+
+---------------------------------------------------------------------------
+-- About uPIGr
+
+uPIGr is a javascript editor focused on the creation and live interpretation 
+of audiovisual algorithms.
+
+uPIGr is programmed with:
+
+[Tone.js](https://tonejs.github.io/)
+[P5.js](https://p5js.org/)
+[Codemirror.js](https://codemirror.net/)
+
+---------------------------------------------------------------------------
+
+You can view a Get Started guide on README.md
+
+---------------------------------------------------------------------------
+-- Commands (without examples):
+
+// start@ .. [Starts Tone.js]
+// eval@ code for evaluate .. [Evaluate javascript code]
+// draw@ code .. [put code on p5.js draw loop]
+// open@ .. [open the navigator for select a text file and insert on code editor]
+// in@ file .. [insert local text file on code editor]
+// save@ .. [save the contents of postwindow on a file]
+// score@ pairs milliseconds-file (on newlines) .. [eval files on time]
+
+---------------------------------------------------------------------------
+-- Commands (with examples):
+
+// start@ .. [Starts Tone.js]
+
+// eval@ code for evaluate .. [Evaluate javascript code]
+Note: Variables do not accept initialization like let, var or const.
+
+Example 1: (simple_osc.js)
+
+Send a oscillator to Tone.js
+
+eval@ osc = new Tone.Oscillator(440, "sine").toDestination().start(); ..
+
+Change the volume:
+
+eval@ osc.volume.value = -100;
+
+Example 2:
+
+Loop notes:
+
+eval@
+
+synth = new Tone.MembraneSynth().toMaster();
+
+loop = new Tone.Loop(function(time) {
+  //triggered every eighth note.
+  console.log(time);
+  synth.triggerAttackRelease("C2", "2n");
+}, "2n").start(0);
+
+..
+
+Stops loop:
+
+eval@ loop.stop ..
+
+// draw@ code .. [put code on p5.js draw loop]
+
+Example 1: (d1 file)
+
+Draw a rectangle:
+
+draw@
+  fill(color('red'));
+  rectMode(CENTER);
+  rect(width/2, height/2, 300, 200);
+..
+
+ // open@ .. [open the navigator for select a text file and insert on code editor]
+
+ // in@ file .. [insert local text file on code editor]
+
+ // save@ .. [save the contents of postwindow on a file]
+
+ -- Show info on postwindows:
+
+ You can post info in one of the four postwindows for control your algorithms.
+
+ For example, post numbers of a Tone.js loop in postwindow 1:
+
+ eval@
+
+ counter = 0;
+
+ loop = new Tone.Loop(function(time) {
+   counter++;
+   post1(counter);
+ }, "2n").start(0);
+
+..
+
+// score@ pairs milliseconds-file (on newlines).. [eval files on time]
+
+Example: 
+
+Evaluate de Get Started using tree files:
+
+score@
+2000-get1 
+4000-get2
+6000-get3
+..
+
+---------------------------------------------------------------------------
+-- Use of UGens
+
+On a localhost version you can use in@ ugg1 .. for insert Unit Generators (located on /UGs) in your code editor.
+
+On a online version you can use open@ .. for insert Unit Generators in your code editor.
+
+The file /docs/UGens_list show the list of UGens.
+
+---------------------------------------------------------------------------
+-- Show info on postwindows:
+
+You can post info in one of the four postwindows for control your algorithms.
+
+For example, post numbers of a Tone.js loop in postwindow 1:
+
+eval@
+
+counter = 0;
+loop = new Tone.Loop(function(time) {
+	counter++;
+	post1(counter);
+}, "2n").start(0);
+
+..
+
+Same for post2(),post3(),post4().
+
+---------------------------------------------------------------------------
+-- Special functions:
+
+// upigrMap(value, low1, high1, low2, high2)
+
+Map one range to another.
+
+// upigrRandomInt(min, max)
+
+Get a random integer.
+
+// upigrRandomFloat(min, max)
+
+Get a random float.
+
+// post1() post2() post3() post4()
+
+Show info on postwindows
+
+// upigrPoly(x, y, radius, npoints)
+
+Draw a regular polygon.
+Example (ogg2):
+
+draw@
+  push();
+  translate(width/2, height/2);
+  rotate(frameCount / -100.0);
+  upigrPoly(0, 0, 70, 7);
+  pop();
+..
+
