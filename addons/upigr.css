@@ -1,0 +1,180 @@
+*{
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: black;
+}
+
+/* Scrollbars */
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #454444;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Keywords styles */
+
+.cm-style1 {
+  color: orange !important;
+}
+
+
+/* For desktop laptops and tablets without screen keys: */
+
+.angry-grid {
+   display: grid;
+
+   grid-template-rows: 1fr 1fr 1fr;
+   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+
+   grid-template-areas:
+	'code code canvas canvas canvas canvas'
+	'code code canvas canvas canvas canvas'
+	'postwindow postwindow post1 post2 post3 post4';
+
+  grid-gap: 2px;
+  border-style: solid;
+  border-color: black;
+  border-width: thin;
+  width: 100vw;
+  height: 100vh;
+
+}
+
+#item-0 {
+
+   background-color: black;
+   grid-area: code;
+
+}
+#item-1 {
+
+   background-color: black;
+   grid-area: canvas;
+
+}
+#item-2 {
+
+   background-color: black;
+   grid-area: postwindow;
+
+}
+#item-3 {
+
+   background-color: black;
+   grid-area: post1;
+
+}
+#item-4 {
+
+   background-color: black;
+   grid-area: post2;
+
+}
+#item-5 {
+
+   background-color: black;
+   grid-area: post3;
+
+}
+#item-6 {
+
+   background-color: black;
+   grid-area: post4;
+
+}
+
+
+/* For mobile */
+
+@media screen and (max-width: 700px) {
+html, body {
+  font-size: 0.75em;
+}
+.angry-grid {
+   display: grid;
+
+   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+
+   grid-template-areas:
+	'canvas canvas canvas canvas canvas canvas canvas'
+	'canvas canvas canvas canvas canvas canvas canvas'
+	'canvas canvas canvas canvas canvas canvas canvas'
+	'code code code code postwindow postwindow postwindow'
+	'code code code code postwindow postwindow postwindow'
+	'post1 post2 post3 post4 postwindow postwindow postwindow';
+
+  grid-gap: 2px;
+  border-style: solid;
+  border-color: black;
+  border-width: thin;
+  width: 100vw;
+  height: 100vh;
+
+}
+
+#item-1 {
+
+   background-color: black;
+   grid-area: canvas;
+
+}
+#item-0 {
+
+   background-color: black;
+   grid-area: code;
+
+}
+#item-2 {
+
+   background-color: black;
+   grid-area: postwindow;
+
+}
+#item-3 {
+
+   background-color: black;
+   grid-area: post1;
+
+}
+#item-4 {
+
+   background-color: black;
+   grid-area: post2;
+
+}
+#item-5 {
+
+   background-color: black;
+   grid-area: post3;
+
+}
+#item-6 {
+
+   background-color: black;
+   grid-area: post4;
+
+}
+
+}
