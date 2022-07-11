@@ -141,7 +141,7 @@ function setup(){
   canvas = createCanvas(canvasAreaWidth,canvasAreaHeight);
   canvas.parent("item-1");
 
-  img = loadImage('../images/uPIGr_pig.png');
+  img = loadImage('../uPIGr/images/uPIGr_pig.png');
 }
 
 function draw(){
