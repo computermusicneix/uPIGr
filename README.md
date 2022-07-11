@@ -20,7 +20,7 @@ Authors: [Miquel Parera & Gonzorobot](http://gonzorobot.com/)
 
 ### Web
 
-[uPIGr](http://gonzorobot.com/uPIGr.html)
+[uPIGr](https://computermusicneix.github.io/uPIGr/)
 
 ### Localhost (desktop and mobile)
 
