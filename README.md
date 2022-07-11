@@ -97,7 +97,7 @@ eval@ loop.stop() ..
 
 ## More info
 
-[uPIGr Manual](http://gonzorobot.com/)
+[uPIGr Manual](https://github.com/computermusicneix/uPIGr/blob/main/docs/uPIGr_Manual.txt)
 
 ## License
 
