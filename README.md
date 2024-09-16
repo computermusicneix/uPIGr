@@ -1,6 +1,6 @@
 # uPIGr
 
-![alt uPIGr](images/uPIGr_pig.png)
+![alt uPIGr](upigr_images/uPIGr_pig.png)
 
 **Unité Polyagogique Informatique GonzoRobot.**
 
