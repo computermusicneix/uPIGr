@@ -1,0 +1,130 @@
+uPIGr Algorithmic Text Sequencer 3.0
+Javascript Implementation
+
+Type functions on command line for info.
+Type variables on command line for info.
+Type commands on command line for info.
+Type snippets on command line for info.
+
+GUI parts:
+
+- Code editor.
+- Command line.
+- Post window.
+
+- Audio controls.
+- Javascript Console.
+
+################################################
+Notes reference:
+
+- rear() : MIDI 36/47 C2-B2 Bass cleff.
+- left() : MIDI 48/59 C3-B3 Bass cleff.
+- right() : MIDI 60/71 C4-B4 Treble cleff.
+- front() : MIDI 72/83 C5-B5 Treble cleff. 
+
+
+################################################
+Functions
+
+- rear() : init rear counter.
+- left() : init left counter.
+- right() : init right counter.
+- front() : init front counter. 
+
+- newLeft(timeAlt,notesTimes,velocity,silence)
+newLeft(modis[rint(0,modis.length-1)],mdivs,velos[rint(0,velos.length-1)],rint(0,24));
+
+- newRight(timeAlt,notesTimes,velocity,silence)
+newRight(modis[rint(0,modis.length-1)],mdivs,velos[rint(0,velos.length-1)],rint(0,24));
+
+- leftPattern(number,repo) Create a random pattern from repo leftNemory and number length 
+leftPattern(rint(4,12),[0,1,2,3,4,5,6,7,8,9,10,11])
+
+- rightPattern(number,repo) Create a random pattern from repo rightNemory and number length 
+rightPattern(rint(4,12),[0,1,2,3,4,5,6,7,8,9,10,11])
+  
+- leftDrone(mtimeAlt,velocity) : Make a drone type
+    - mtimeAlt (multiplier or divisor of mtime) 
+    - velocity (array of possible velocitys)
+    
+
+- rightDrone(mtimeAlt,velocity) : Make a drone type
+    - mtimeAlt (multiplier or divisor of mtime) 
+    - velocity (array of possible velocitys)
+
+TIP for drones: Large times (+1000), but constrain to sample duration.
+    
+- getLeft(int) Get int score from leftMemory
+- getRight(int) Get int score from rightMemory
+- getLeftPattern(int) Get int score from leftMemoryPattern
+- getRightPattern(int) Get int score from rightMemoryPattern
+
+- setRearTrans(number) : Transpose MIDI left counter number (Default:-12)
+- setLeftTrans(number) : Transpose MIDI left counter number (Default:0)
+- setRightTrans(number) : Transpose MIDI right counter number (Default:12)
+- setFrontTrans(number) : Transpose MIDI right counter number (Default:24)
+
+TIP for transposition: The transposing it's on counter. If you want to write an algorithm that uses octaves, you must keep your algorithm without transposition or set all transpositions to zero.
+  
+- randomNoteLeft(): Replace one random note of leftScore
+- randomNoteRight(): Replace one random note of rightScore
+
+- loadInstrument(name) : Load Instrument
+
+- rMelody() : makes random melodys on every voice. Creates 3 arrays: no[],du[],ve[], for notes, durations and velocitys. (Livecoding: in forScore)
+
+################################################
+Variables
+
+- left1 string : function for eval on every init of left counter.
+---- Example: (Change one random note of leftScore)
+
+left1 = "randomNoteLeft()";
+
+- right1 string : function for eval on every init of right counter.
+---- Example: (Change one random note of rightScore)
+
+right1 = "randomNoteRight()";
+
+################################################
+Commands
+
+-- Control Commands --
+
+- ..
+
+- openScore 
+- initScore
+- saveScore
+
+- abcScoreONOFF (1/0) Default 0 : Init/stop the abc score record.
+
+-- Insert Commands --
+
+- in name of snippet (insert snippet on code editor)
+- i number (insert number of code history on code editor)
+- last (insert last code of code history on code editor)
+- insert (insert code on editor)
+
+-- Info Commands --
+
+- leftScore (show leftScore)
+- rightScroe (show rightScore)
+- showHistory (show code history)
+- last (post last function on code editor)
+- leftLen (show length of left memory)
+- rightLen (show length of right memory)
+- leftPatternLen (show length of left pattern memory)
+- rightPatternLen (show length of right pattern memory)
+
+
+
+################################################
+Snippets (Command in name of snippet)
+
+- playAll (play all counters)
+- stopAll (stop all counters)
+- forLoop (javascript for loop)
+
+

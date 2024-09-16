@@ -1,0 +1,13 @@
+'C5': '/upigr_samples/MusyngKite/music_box-mp3/C5.mp3',
+'Db5': '/upigr_samples/MusyngKite/music_box-mp3/Db5.mp3',
+'D5': '/upigr_samples/MusyngKite/music_box-mp3/D5.mp3',
+'Eb5': '/upigr_samples/MusyngKite/music_box-mp3/Eb5.mp3',
+'E5': '/upigr_samples/MusyngKite/music_box-mp3/E5.mp3',
+'F5': '/upigr_samples/MusyngKite/music_box-mp3/F5.mp3',
+'Gb5': '/upigr_samples/MusyngKite/music_box-mp3/Gb5.mp3',
+'G5': '/upigr_samples/MusyngKite/music_box-mp3/G5.mp3',
+'Ab5': '/upigr_samples/MusyngKite/music_box-mp3/Ab5.mp3',
+'A5': '/upigr_samples/MusyngKite/music_box-mp3/A5.mp3',
+'Bb5': '/upigr_samples/MusyngKite/music_box-mp3/Bb5.mp3',
+'B5': '/upigr_samples/MusyngKite/music_box-mp3/B5.mp3',
+

@@ -1,0 +1,2283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>uPIGr-ATS-1</title>
+
+<link rel="shortcut icon" href="../upigr_images/favicon_pig.png">
+
+<script src="./upigr_addons/Tone.js" type="text/javascript"></script>
+<script src="./upigr_addons/teoria.js" type="text/javascript"></script>
+<script src="./upigr_addons/p5.js" type="text/javascript"></script>
+
+<script src="./upigr_addons/scriabin.js" type="text/javascript"></script>
+<script src="./upigr_addons/instruments.js" type="text/javascript"></script>
+
+
+<meta name='viewport'
+     content='width=device-width, initial-scale=1.0, maximum-scale=1.0,
+     user-scalable=0' >
+
+<style>
+
+body {background-color: black;}
+
+.flex-container {
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nonwrap;
+  background-color: black;
+ 
+}
+
+.feditor {
+  background-color: grey;
+  margin: 1px;
+  padding: 2px;
+  font-size: 30px;
+  
+}
+
+.fcanvas {
+  background-color: black;
+  margin: 1px;
+  padding:2px;
+}
+
+.fcommand {
+  background-color: grey;
+  margin: 1px;
+  padding: 2px;
+  font-size: 30px;
+  
+}
+
+.fpost {
+  background-color: grey;
+  margin: 1px;
+  padding: 2px;
+  font-size: 30px;
+  
+}
+
+#editor { 
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 12.5vh;
+}
+
+#canvas { 
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 15vh;
+}
+
+#command { 
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 5vh;
+}
+
+#post { 
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 10vh;
+}
+
+.center {
+  margin: auto;
+  width: 75%;
+  padding: 10px;
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+
+<input type="file" name="" id='input_file' hidden>
+
+<script src="/upigr_addons/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="/upigr_addons/src-noconflict/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+
+
+<script>
+
+
+    
+    // Variables for media_recording
+    
+    var blob, mediaRecorder = null;
+    var chunks = [];
+    var deviceRecorder;
+    
+
+    let leftMemory = [];
+    let rightMemory = [];
+    let rearMemory = [];
+    let frontMemory = [];
+    
+    let leftMemoryPattern = [];
+    let rightMemoryPattern = [];
+    let rearMemoryPattern = [];
+    let frontMemoryPattern = [];
+    
+    let leftMemoryDrone = [];
+    let rightMemoryDrone = [];
+    let rearMemoryDrone = [];
+    let frontMemoryDrone = [];
+    
+    
+    canvasWidth = window.innerWidth;
+    canvasHeight = window.innerHeight;
+    
+
+    // p5 canvas
+    
+    let drawing = "imageMode(CENTER);image(img, width / 2, height / 2, img.width/2, img.height/2);";
+    
+    var canvas;
+    
+    function setup(){
+        canvas = createCanvas(canvasWidth, canvasHeight);
+	    
+        img = loadImage('../upigr_images/uPIGr_pig.png');
+        
+    }
+
+    function draw() {
+      //background(0);
+      eval(drawing);
+    }
+    
+    function windowResized() {
+      resizeCanvas(window.innerWidth, window.innerHeight);
+    }
+    
+    let started = 0;
+    
+    function mousePressed(){
+        
+            if(started == 0){
+                console.log("Tone Started");
+        	    Tone.start();
+        	    Tone.Transport.start("+0.1");
+                started = 1
+            }
+            document.getElementById('input_file').click();
+            document.getElementById('input_file').addEventListener('change', openplayScore, false);
+            
+            
+    }
+    
+
+    
+
+
+    
+    
+    function parser(code){
+
+	    codeS = code.split(" ");
+	    //console.log(codeS);
+	    
+	    // i int (insert i number from code history to code editor)
+	   
+	    if(codeS[0] == "i"){
+	        setTimeout(() => {
+              editor.setValue(code_history[codeS[1]]);
+            }, 100);
+	        
+	    };
+	    // sch (show command history)
+	    if(codeS[0] == "sch"){
+	        histo = "";
+	        for(let i=0;i<command_history.length;i++){
+	              
+	              histo += i+" "+command_history[i]+"\n";
+	        };
+	        post.setValue(histo);
+	      
+	    };
+	    // showHistory (show code history)
+	    if(codeS[0] == "showHistory"){
+	        histo = "";
+	        for(let i=0;i<code_history.length;i++){
+	              
+	              histo += i+" "+code_history[i]+"\n";
+	        };
+	        post.setValue(histo);
+	      
+	    };
+	    
+	    // init score
+	    
+	    if(codeS[0] == "initScore"){
+	        scoreState = 1;
+	        startTime = new Date();
+	        post.setValue(".. Score init ..");
+	    };
+	    
+	    // saveScore
+	    
+	    if(codeS[0] == "saveScore"){
+	    	scoreState = 0;
+	        saveScore(codeS[1]);
+	     };
+	     
+	     // playScore
+	     
+	    if(codeS[0] == "playScore"){
+	        repeatscore = 1;
+	        indexscore  = 0;
+	        scoreCounter();
+	    }; 
+	    if(codeS[0] == "openScore"){
+	        document.getElementById('input_file').click();
+            document.getElementById('input_file').addEventListener('change', openScore, false);
+	    };
+	    if(codeS[0] == "openSynth"){
+	        document.getElementById('input_file').click();
+            document.getElementById('input_file').addEventListener('change', openSynth, false);
+	    };
+	    // help (show help)
+	    if(codeS[0] == "help"){
+	        post.setValue(help_list);
+	    };
+	    if(codeS[0] == "functions"){
+	         post.setValue(functions_list);
+	         
+	    }
+	    if(codeS[0] == "commands"){
+	        post.setValue(commands_list);
+	    };
+	    if(codeS[0] == "snippets"){
+	        post.setValue(snippets_list);
+	    };
+	    if(codeS[0] == "variables"){
+	        post.setValue(variables_list);
+	    };
+	    if(codeS[0] == "leftLen"){
+	    	let posting = leftMemory.length.toString();
+	        post.setValue("Length of left memory: "+posting);
+	    };
+	    if(codeS[0] == "rightLen"){
+	    	let posting = rightMemory.length.toString();
+	        post.setValue("Length of right memory: "+posting);
+	    };
+	    if(codeS[0] == "rearLen"){
+	    	let posting = rearMemory.length.toString();
+	        post.setValue("Length of rear memory: "+posting);
+	    };
+	    if(codeS[0] == "frontLen"){
+	    	let posting = frontMemory.length.toString();
+	        post.setValue("Length of front memory: "+posting);
+	    };
+	    if(codeS[0] == "leftPatternLen"){
+	    	let posting = leftMemoryPattern.length.toString();
+	        post.setValue("Length of left pattern memory: "+posting);
+	    };
+	    if(codeS[0] == "rightPatternLen"){
+	    	let posting = rightMemoryPattern.length.toString();
+	        post.setValue("Length of right pattern memory: "+posting);
+	    };
+	    if(codeS[0] == "rearPatternLen"){
+	    	let posting = rearMemoryPattern.length.toString();
+	        post.setValue("Length of rear pattern memory: "+posting);
+	    };
+	    if(codeS[0] == "frontPatternLen"){
+	    	let posting = frontMemoryPattern.length.toString();
+	        post.setValue("Length of front pattern memory: "+posting);
+	    };
+	    if(codeS[0] == "last"){
+	    	editor.setValue(code_history[code_history.length-1].toString());
+	    };	    	    
+	    if(codeS[0] == "in"){
+	        if(codeS[1] == "playAll"){
+    	        editor.setValue(playAll);
+	        };
+	        if(codeS[1] == "stopAll"){
+    	        editor.setValue(stopAll);
+	        };
+	        if(codeS[1] == "forLoop"){
+    	        editor.setValue(forLoop);
+	        }
+	    };
+	    if(codeS[0] == ".."){
+	       let coding = editor.getValue();
+	       code_history.push(editor.getValue());
+	       eval(editor.getValue());
+	       editor.setValue("");
+	       //post.setValue(".. Code evaluated ..");
+	       if(scoreState == 1){
+			newCode = [];
+	            	let endTime = new Date();
+                	let timeElapsed = endTime - startTime;
+                	startTime = new Date();
+                	newCode.push(coding);
+                    newCode.push(timeElapsed);
+                	code_score.push(newCode);
+                	code_score.push("\n");
+                	post.setValue(".. Code saved to score ..");
+	       }
+	    };
+
+	    if(codeS[0] == "frontScore"){
+	      let frontShow = "frontScore = [";
+	      for(let i=0;i<frontScore.length;i++){
+	          frontShow += "["
+	          frontShow += frontScore[i].toString();
+	          frontShow += "],";
+	      };
+	      frontShow.substring(0,frontShow.length-1);
+	      frontShow += "];"
+	      editor.setValue(frontShow);  
+	    };
+	    
+	    if(codeS[0] == "rearScore"){
+	      let rearShow = "rearScore = [";
+	      for(let i=0;i<rearScore.length;i++){
+	          rearShow += "["
+	          rearShow += rearScore[i].toString();
+	          rearShow += "],";
+	      };
+	      rearShow.substring(0,rearShow.length-1);
+	      rearShow += "];"
+	      editor.setValue(rearShow);  
+	    };
+	    
+	    if(codeS[0] == "rightScore"){
+	      let rightShow = "rightScore = [";
+	      for(let i=0;i<rightScore.length;i++){
+	          rightShow += "["
+	          rightShow += rightScore[i].toString();
+	          rightShow += "],";
+	      };
+	      rightShow.substring(0,rightShow.length-1);
+	      rightShow += "];"
+	      editor.setValue(rightShow);  
+	    };
+	    
+	    // leftScore (insert leftScore on editor)
+	    if(codeS[0] == "leftScore"){
+	      let leftShow = "leftScore = [";
+	      for(let i=0;i<leftScore.length;i++){
+	          leftShow += "["
+	          leftShow += leftScore[i].toString();
+	          leftShow += "],";
+	      };
+	      leftShow.substring(0,leftShow.length-1);
+	      leftShow += "];"
+	      editor.setValue(leftShow);  
+	    };
+	    
+	    // scale (insert scale on post)
+	    
+	    if(codeS[0] == "scale"){
+	        post.setValue(scale.toString());
+	    }
+	    
+	    // mtime (insert mtime on post)
+	    
+	    if(codeS[0] == "mtime"){
+	        post.setValue(mtime.toString());
+	    };
+	    
+	    if(codeS[0] == "rearTrans"){
+	        post.setValue("rearTrans: "+rearTrans.toString());
+	    };
+	    
+	    if(codeS[0] == "frontTrans"){
+	        post.setValue("frontTrans: "+frontTrans.toString());
+	    };
+	    
+	    // leftTrans (get left MIDI transposition sum)
+	    
+	    if(codeS[0] == "leftTrans"){
+	        post.setValue("leftTrans: "+leftTrans.toString());
+	    };
+	    
+	    // rightTrans (get right MIDI transposition sum)
+	    
+	    if(codeS[0] == "rightTrans"){
+	        post.setValue("rightTrans: "+rightTrans.toString());
+	    }
+	    
+	    // recOn
+	    
+	    if(codeS[0] == "recOn"){
+	        recorder.start();
+	    }
+	    // recOff
+	    
+	    if(codeS[0] == "recOff"){
+	        recorder.stop();
+	    }
+	    
+
+	};
+
+
+	
+
+    // Default instrument / You can load with the command loadInstrument:
+    
+	let reverb = new Tone.Reverb({wet: 0.5,decay: 2}).toDestination();
+
+	
+	piano = new Tone.Sampler({urls: {'A0': 'A0.mp3','A1': 'A1.mp3','A2': 'A2.mp3','A3': 'A3.mp3','A4': 'A4.mp3','A5': 'A5.mp3','A6': 'A6.mp3','A7': 'A7.mp3','Ab0': 'Ab0.mp3','Ab1': 'Ab1.mp3','Ab2': 'Ab2.mp3','Ab3': 'Ab3.mp3','Ab4': 'Ab4.mp3','Ab5': 'Ab5.mp3','Ab6': 'Ab6.mp3','Ab7': 'Ab7.mp3','B0': 'B0.mp3','B1': 'B1.mp3','B2': 'B2.mp3','B3': 'B3.mp3','B4': 'B4.mp3','B5': 'B5.mp3','B6': 'B6.mp3','B7': 'B7.mp3','Bb0': 'Bb0.mp3','Bb1': 'Bb1.mp3','Bb2': 'Bb2.mp3','Bb3': 'Bb3.mp3','Bb4': 'Bb4.mp3','Bb5': 'Bb5.mp3','Bb6': 'Bb6.mp3','Bb7': 'Bb7.mp3','C0': 'C0.mp3','C1': 'C1.mp3','C2': 'C2.mp3','C3': 'C3.mp3','C4': 'C4.mp3','C5': 'C5.mp3','C6': 'C6.mp3','C7': 'C7.mp3','C8': 'C8.mp3','D0': 'D0.mp3','D1': 'D1.mp3','D2': 'D2.mp3','D3': 'D3.mp3','D4': 'D4.mp3','D5': 'D5.mp3','D6': 'D6.mp3','D7': 'D7.mp3','Db0': 'Db0.mp3','Db1': 'Db1.mp3','Db2': 'Db2.mp3','Db3': 'Db3.mp3','Db4': 'Db4.mp3','Db5': 'Db5.mp3','Db6': 'Db6.mp3','Db7': 'Db7.mp3','E0': 'E0.mp3','E1': 'E1.mp3','E2': 'E2.mp3','E3': 'E3.mp3','E4': 'E4.mp3','E5': 'E5.mp3','E6': 'E6.mp3','E7': 'E7.mp3','Eb0': 'Eb0.mp3','Eb1': 'Eb1.mp3','Eb2': 'Eb2.mp3','Eb3': 'Eb3.mp3','Eb4': 'Eb4.mp3','Eb5': 'Eb5.mp3','Eb6': 'Eb6.mp3','Eb7': 'Eb7.mp3','F0': 'F0.mp3','F1': 'F1.mp3','F2': 'F2.mp3','F3': 'F3.mp3','F4': 'F4.mp3','F5': 'F5.mp3','F6': 'F6.mp3','F7': 'F7.mp3','G0': 'G0.mp3','G1': 'G1.mp3','G2': 'G2.mp3','G3': 'G3.mp3','G4': 'G4.mp3','G5': 'G5.mp3','G6': 'G6.mp3','G7': 'G7.mp3','Gb0': 'Gb0.mp3','Gb1': 'Gb1.mp3','Gb2': 'Gb2.mp3','Gb3': 'Gb3.mp3','Gb4': 'Gb4.mp3','Gb5': 'Gb5.mp3','Gb6': 'Gb6.mp3','Gb7': 'Gb7.mp3'},baseUrl: '/upigr_samples/piano_1/',onload: () => { console.log('..piano_1 Samples loaded..');}}).connect(reverb);
+
+    
+     // Time:
+     
+     mtime = rint(1000,5000);
+     console.log("mtime: "+mtime);
+     
+     mdivs = [0.75,0.5,0.375,0.25,0.125];
+     //console.log("mdivs: "+mdivs);
+    
+     // Notes
+     
+     let scale = newScale();
+     
+     // the current front playing score:
+     
+     let frontScore = [];
+     let frontNotes = [];
+     let frontVelos = [];
+     let frontTimes = [];
+     
+     // the current rear playing score:
+     
+     let rearScore = [];
+     let rearNotes = [];
+     let rearVelos = [];
+     let rearTimes = [];
+
+     // the current left playing score:
+     
+     let leftScore = [];
+     let leftNotes = [];
+     let leftVelos = [];
+     let leftTimes = [];
+     
+     // the current right playing score:
+     
+     let rightScore = [];
+     let rightNotes = [];
+     let rightVelos = [];
+     let rightTimes = [];
+     
+     // Velocity
+     
+     let v0 = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126];
+   
+     let v1 = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64];
+     let v2 = [66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126];
+     
+     let v3 = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+     let v4 = [34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64];
+     let v5 = [64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94];
+     let v6 = [96, 98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126];         
+   
+     //console.log(v0);
+         
+    // 9s
+    
+    ////////////////////////////
+    // Score player
+    
+    let repeatscore = 1;
+    let indexscore  = 0;
+    let scoreStop;
+    
+    scoreCounter = function( ) {
+
+       var mod = indexscore % code_score.length;
+
+       if(!indexscore || mod || --repeatscore ) {
+         indexscore = mod;
+         var data = code_score[ indexscore++  ];
+         
+         eval(data[0]);
+	 //post.setValue("From score:\n\n"+data[0]);	
+	    
+         scoreStop = setTimeout( scoreCounter, data[1] ); 
+      }
+    };
+
+    ////////////////////////////
+    // Left Counter
+    
+    let left1 = "";
+    
+    let repeatleft = 0;
+    let indexleft  = 0;
+let leftStop;
+    let leftTrans = 0;
+    
+    leftData = [];
+    leftNotes = []    
+    left = function( ) {
+	    
+       var mod = indexleft % leftScore.length;
+       let lnote = [];
+       if(!indexleft || mod || --repeatleft ) {
+         indexleft = mod;
+         var data = leftScore[ indexleft++  ];
+         if(data[0].length != null){
+             //console.log("Acorde");
+             for(let i=0;i<data[0].length;i++){
+                 
+                 lnote.push(Tone.Midi(data[0][i] + parseInt(leftTrans)).toFrequency());
+                 //console.log(lnote)
+             }
+         }else{
+            lnote = [Tone.Midi(data[0] + parseInt(leftTrans)).toFrequency()];
+         };
+         piano.triggerAttackRelease(
+             lnote,data[1]/1000,Tone.Time.now,reescale(data[2],0,127,0.0,1.0));
+         leftData = [lnote,data[1]/1000,reescale(data[2],0,127,0.0,1.0)];
+	 leftNotes = lnote;
+         leftStop = setTimeout( left, data[1] );
+         
+         if(indexleft == 1){
+             eval(left1);
+         }
+      }
+    };
+    
+    ////////////////////////////
+    // rear Counter
+    
+    let rear1 = "";
+    
+    let repeatrear = 0;
+    let indexrear  = 0;
+    let rearStop;
+    let rearTrans = -12;
+    
+    rearData = [];
+    rearNotes = [];
+    
+    rear = function( ) {
+
+       var mod = indexrear % rearScore.length;
+       let lnote = [];
+       if(!indexrear || mod || --repeatrear ) {
+         indexrear = mod;
+         var data = rearScore[ indexrear++  ];
+         if(data[0].length != null){
+             //console.log("Acorde");
+             for(let i=0;i<data[0].length;i++){
+                 
+                 lnote.push(Tone.Midi(data[0][i] + parseInt(rearTrans)).toFrequency());
+                 //console.log(lnote)
+             }
+         }else{
+            lnote = [Tone.Midi(data[0] + parseInt(rearTrans)).toFrequency()];
+         };
+         piano.triggerAttackRelease(
+             lnote,data[1]/1000,Tone.Time.now,reescale(data[2],0,127,0.0,1.0));
+        rearData = [lnote,data[1]/1000,reescale(data[2],0,127,0.0,1.0)];
+	rearNotes = lnote;    
+	//console.log(typeof rearData[0]);
+
+	    
+         rearStop = setTimeout( rear, data[1] );
+         
+         if(indexrear == 1){
+             eval(rear1);
+         }
+      }
+    };
+    
+    ////////////////////////////
+    // front Counter
+    
+    let front1 = "";
+    
+    let repeatfront = 0;
+    let indexfront  = 0;
+    let frontStop;
+    let frontTrans = 24;
+    
+    frontData = [];
+    frontNotes = [];
+    
+    front = function( ) {
+
+       var mod = indexfront % frontScore.length;
+       let lnote = [];
+       if(!indexfront || mod || --repeatfront ) {
+         indexfront = mod;
+         var data = frontScore[ indexfront++  ];
+         if(data[0].length != null){
+             //console.log("Acorde");
+             for(let i=0;i<data[0].length;i++){
+                 
+                 lnote.push(Tone.Midi(data[0][i] + parseInt(frontTrans)).toFrequency());
+                 //console.log(lnote)
+             }
+         }else{
+            lnote = [Tone.Midi(data[0] + parseInt(frontTrans)).toFrequency()];
+         }
+         piano.triggerAttackRelease(
+             lnote,data[1]/1000,Tone.Time.now,reescale(data[2],0,127,0.0,1.0));
+             
+        frontData = [lnote,data[1]/1000,reescale(data[2],0,127,0.0,1.0)];
+	frontNotes = lnote;
+	    
+         frontStop = setTimeout( front, data[1] );
+         
+         if(indexfront == 1){
+             eval(front1);
+         }
+      }
+    };
+    
+    
+    ////////////////////////////
+    // right Counter
+    
+    let right1 = "";
+    
+    let repeatright = 0;
+    let indexright  = 0;
+    let rightStop;
+    let rightTrans = 12;
+    
+    rightData = [];
+    rightNotes = [];
+    
+    right = function( ) {
+
+       var mod = indexright % rightScore.length;
+       let lnote = [];
+       if(!indexright || mod || --repeatright ) {
+         indexright = mod;
+         var data = rightScore[ indexright++  ];
+         if(data[0].length != null){
+             //console.log("Acorde");
+             for(let i=0;i<data[0].length;i++){
+                 
+                 lnote.push(Tone.Midi(data[0][i] + parseInt(rightTrans)).toFrequency());
+                 //console.log(lnote)
+             }
+         }else{
+            lnote = [Tone.Midi(data[0] + parseInt(rightTrans)).toFrequency()];
+         };
+         piano.triggerAttackRelease(
+             lnote,data[1]/1000,Tone.Time.now,reescale(data[2],0,127,0.0,1.0));
+        rightData = [lnote,data[1]/1000,reescale(data[2],0,127,0.0,1.0)];
+        //console.log(rightData);
+	rightNotes = lnote;  
+	    
+         rightStop = setTimeout( right, data[1] );
+         
+         if(indexright == 1){
+             eval(right1);
+         }
+      }
+    };
+   
+
+    
+    ////////////////////////////
+    // Snippets
+
+    let playAll = "left();\nright();\nrear();\nfront();"
+    
+    let stopAll = "clearTimeout(leftStop);\nclearTimeout(rightStop);\nclearTimeout(rearStop);\nclearTimeout(frontStop);";
+    
+    let forLoop = "for(i=0; i<12; i++){\n\n};";
+    
+        
+    ////////////////////////////
+    // Helps
+    
+    let help_list =  'uPIGr Algorithmic Text Sequencer Version 1\nJavascript Implementation\n\nType functions on command line for info.\nType variables on command line for info.\nType commands on command line for info.\nType snippets on command line for info.\n\nGUI parts:\n\n- Code editor.\n- Command line.\n- Post window.\n\n- Audio controls.\n- Javascript Console.';
+    
+    let commands_list = 'Commands\n\n-- Control Commands --\n\n- ..\n\n- openScore \n- initScore\n- saveScore\n\n- recOn\n- recOff\n\n-- Insert Commands --\n\n- in name of snippet (insert snippet on code editor)\n- i number (insert number of code history on code editor)\n- last (insert last code of code history on code editor)\n\n-- Info Commands --\n\n- leftScore (show leftScore)\n- rightScroe (show rightScore)\n- showHistory (show code history)\n- last (post last function on code editor)\n- leftLen (show length of left memory)\n- rightLen (show length of right memory)\n- leftPatternLen (show length of left pattern memory)\n- rightPatternLen (show length of right pattern memory)';
+     
+     let variables_list = "- General variables:\n\n- mtime = rint(1000,5000); || General time in milliseconds.\n- mdivs = [1,0.75,0.5,0.375,0.25,0.125]; || All notes times.\n- scale || General MIDI scale.\n- leftScore || Current left score.\n- rightScore || Current right score.";
+    
+    let functions_list = 'Functions\n\n- left() : init left counter.\n- right() : init right counter. \n\n- newLeft(timeAlt,notesTimes,velocity,silence)\nnewLeft(modis[rint(0,modis.length-1)],mdivs,velos[rint(0,velos.length-1)],rint(0,24));\n\n- newRight(timeAlt,notesTimes,velocity,silence)\nnewRight(modis[rint(0,modis.length-1)],mdivs,velos[rint(0,velos.length-1)],rint(0,24));\n\n- leftPattern(number,repo) Create a random pattern from repo leftMemory and number length \nleftPattern(rint(4,12),[0,1,2,3,4,5,6,7,8,9,10,11])\n\n- rightPattern(number,repo) Create a random pattern from repo rightNemory and number length \nrightPattern(rint(4,12),[0,1,2,3,4,5,6,7,8,9,10,11])\n  \n- leftDrone(mtimeAlt,velocity) : Make a drone type\n    - mtimeAlt (multiplier or divisor of mtime) TIP: Large times (+1000) but cnstrain to sample duration.\n    - velocity (array of possible velocitys)\n    \n- rightDrone(mtimeAlt,velocity) : Make a drone type\n    - mtimeAlt (multiplier or divisor of mtime) TIP: Large times (+1000) but cnstrain to sample duration.\n    - velocity (array of possible velocitys)\n    \n- getLeft(int) Get int score from leftMemory\n- getRight(int) Get int score from rightMemory\n- getLeftPattern(int) Get int score from leftMemoryPattern\n- getRightPattern(int) Get int score from rightMemoryPattern\n\n- setLeftTrans(number) : Transpose MIDI left counter number (Default:0)\n- setRightTrans(number) : Transpose MIDI right counter number (Default:12)\n  \n- randomNoteLeft(): Replace one random note of leftScore\n- randomNoteRight(): Replace one random note of rightScore\n\n- loadInstrument(name) : Load Instrument\n\n--- Instruments List:\n\n    - Piglock: (48-71 : Piano + Glockenspiel) \n    - Llovitabu: (48-59 : Cello + Viola) (60-71 : Tubular Bells + Celesta)\n    - Wacan: (48-71 : Water on cans )\n    - qexujopuaata: (48-71 : Sine synth with envelope)\n    - Timganpizzzer (48-59 : Timpani + Bass Pizz) (60-71 : Perc Organ + Wurlitzer)\n    - Darcika: (48-59 Arab percussion \/\n      48-53 Darbouka\n      54-55-56 Large Metallic\n      57-58-59 Short metallic\n      60-71 Citara + Kanun)';
+    
+    let snippets_list = "Code Snippets.\n\n- playAll (play all counters)\n- stopAll (stop all counters)\n- forLoop (javascript for loop)";
+    
+    
+    ////////////////////////////
+    // Functions
+    
+    // Reescale function
+    
+    function reescale(value, low1, high1, low2, high2) {
+    return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+    };
+    
+    // Random functions
+
+    function rint(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+
+    function rfloat(min, max) {
+      return Math.random() * (max - min) + min;
+    };
+    
+    // Find divisors of int
+    
+    function divisors(integer) {
+        var result = [];
+        for(let i = 2; i < integer; i++) {
+          if(integer % i == 0) {
+        result.push(i)
+      }
+    }
+     return result;
+    };
+    
+    // Find all combinations that
+    // sum to a given value
+ 
+    function combinationSum(arr, sum) {
+        let ans = new Array();
+        let temp = new Array();
+        let set = new Set([...arr]);
+        arr = [...set];
+        arr.sort()
+         findNumbers(ans, arr, sum, 0, temp);
+        return ans;
+    };
+ 
+    function findNumbers(ans, arr, sum, index, temp) {
+         if (sum == 0) {
+             ans.push([...temp]);
+            return;
+        }
+         for (let i = index; i < arr.length; i++) {
+                 if ((sum - arr[i]) >= 0) {
+                    temp.push(arr[i]);
+                     findNumbers(ans, arr, sum - arr[i], i, temp);
+             temp.splice(temp.indexOf(arr[i]), 1);
+            }
+        }
+    };
+    
+    // Function for shuffle array
+
+    function arrayShuffle(array) {  
+        var m = array.length, t, i;
+        while (m) {     
+          i = Math.floor(Math.random() * m--);
+	        t = array[m];
+	        array[m] = array[i];
+	        array[i] = t;
+		}
+	   return array;
+    };
+    
+    // Function for create a random scale (needs teoria.js)
+    
+    function newScale() {
+        
+        // 1. Root note
+        notes = ['C','D','E','F','G','A','B'];
+        root_note = teoria.note(notes[rint(0,notes.length-1)]);
+        root_note_string = root_note.toString();
+        //console.log(root_note_string);
+
+        // 2. Scales
+
+        scales = teoria.Scale.KNOWN_SCALES;
+        //console.log(scales);
+
+        // 3. Select random scale
+
+        scale_random = scales[rint(0,scales.length-1)];
+
+        mscale = root_note.scale(scale_random);
+        //console.log(mscale);
+
+        scale_array = mscale.simple();
+        
+        scaleMIDI = [];
+
+        for(let i=0;i<scale_array.length;i++){
+            scaleMIDI.push(teoria.note(scale_array[i]).midi());
+        };
+        
+        scaleMIDIout = scaleMIDI.sort();
+        
+        //console.log(scaleMIDIout);
+        return scaleMIDIout;
+        
+    };
+    
+    
+    // setLeftTrans(number) : Transpose MIDI left counter number (Dafault:0)
+    
+    function setLeftTrans(number){
+        leftTrans = number;
+        
+    };
+    
+    // setRightTrans(number) : Transpose MIDI right counter number (Dafault:12)
+    
+    function setRightTrans(number){
+        rightTrans = number;
+        
+    };
+    
+    function setRearTrans(number){
+        rearTrans = number;
+        
+    };
+    
+    function setFrontTrans(number){
+        frontTrans = number;
+        
+    };
+
+    // Make random 12 lefts and rights on init:
+    
+    let modis = ["/4","/2","x1","x2","x3"];
+    let velos = [v0,v1,v2,v3,v4,v5,v6];
+     
+    for(let i=0;i<12;i++){
+      newLeft(modis[rint(0,modis.length-1)],mdivs,velos[rint(0,velos.length-1)],rint(0,24));  
+    };
+    
+    for(let i=0;i<12;i++){
+      newRight(modis[rint(0,modis.length-1)],mdivs,velos[rint(0,velos.length-1)],rint(0,24));  
+    };
+
+    for(let i=0;i<12;i++){
+      newRear(modis[rint(0,modis.length-1)],mdivs,velos[rint(0,velos.length-1)],rint(0,24));  
+    };
+    
+    for(let i=0;i<12;i++){
+      newFront(modis[rint(0,modis.length-1)],mdivs,velos[rint(0,velos.length-1)],rint(0,24));  
+    };    
+   
+    // Make a random 12 leftsPatterns and Rights on init:
+    
+    //for(let i=0;i<12;i++){
+	//leftPattern(rint(4,12),[0,1,2,3,4,5,6,7,8,9,10,11]);
+    //};
+    
+    //for(let i=0;i<12;i++){
+	//rightPattern(rint(4,12),[0,1,2,3,4,5,6,7,8,9,10,11]);
+    //};
+    
+    function newRear(timeAlt,notesTimes,velocity,silence){
+	
+	let newTime = mtime;
+
+	   let timeAltOperator = timeAlt.substring(1);
+
+        if(timeAlt[0] == "/"){
+		newTime = mtime / timeAltOperator;
+	};
+        if(timeAlt[0] == "x"){
+		newTime = mtime * timeAltOperator;
+	};
+	
+	//console.log("mtime: "+mtime);
+	//console.log("newTime: "+newTime);
+
+    let suming = 0;
+	let pre = 0;
+	let newTimesNorm = [];
+	
+	let i = 0.0;
+	
+	do {
+  		pre = notesTimes[rint(0,notesTimes.length-1)];
+  		newTimesNorm.push(pre);
+  		i = i + pre;
+	}
+	while (i < 1.0);
+	
+	//console.log("newTimesNorm: "+newTimesNorm);
+	
+	let newTimes = [];
+	
+     	for(let i=0;i<newTimesNorm.length;i++){
+             newTimes.push(newTimesNorm[i]*newTime);
+        };
+        
+        //console.log("newTimes: "+newTimes);
+                
+        let newArray = [];
+    
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i] = [];
+        };
+    
+        // Add notes to newArray
+        
+        let newNotes = [];
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            let nooote = scale[rint(0,scale.length-1)]; 
+            newNotes.push(nooote);
+            newArray[i][0] = nooote;
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add times to newArray
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i][1] = newTimes[i];
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add velocitys to newArray
+        
+        let newVelos = [];
+        let newVeloc = [];
+        
+        newVeloc = [...velocity];
+        
+        for(let i = 0;i < silence;i++){
+        	newVeloc.push(0);
+        };
+        
+        //console.log("silence: "+silence);
+        //console.log("newVelos: "+newVelos);
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            let velooo = newVeloc[rint(0,newVeloc.length-1)];
+            newArray[i][2] = velooo;
+            newVelos.push(velooo);
+        };
+         
+         //console.log("newArray: "+newArray);
+         
+         // Add to rearMemory
+         
+         rearMemory.push(newArray);
+         
+         
+         // Apply to playing score
+         
+         rearTimes = newTimes;
+         rearVelos = newVelos;
+         rearNotes = newNotes;
+         
+         rearScore = newArray;
+    };
+    
+    function newFront(timeAlt,notesTimes,velocity,silence){
+	
+	let newTime = mtime;
+
+	   let timeAltOperator = timeAlt.substring(1);
+
+        if(timeAlt[0] == "/"){
+		newTime = mtime / timeAltOperator;
+	};
+        if(timeAlt[0] == "x"){
+		newTime = mtime * timeAltOperator;
+	};
+	
+	//console.log("mtime: "+mtime);
+	//console.log("newTime: "+newTime);
+
+    let suming = 0;
+	let pre = 0;
+	let newTimesNorm = [];
+	
+	let i = 0.0;
+	
+	do {
+  		pre = notesTimes[rint(0,notesTimes.length-1)];
+  		newTimesNorm.push(pre);
+  		i = i + pre;
+	}
+	while (i < 1.0);
+	
+	//console.log("newTimesNorm: "+newTimesNorm);
+	
+	let newTimes = [];
+	
+     	for(let i=0;i<newTimesNorm.length;i++){
+             newTimes.push(newTimesNorm[i]*newTime);
+        };
+        
+        //console.log("newTimes: "+newTimes);
+                
+        let newArray = [];
+    
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i] = [];
+        };
+    
+        // Add notes to newArray
+        
+        let newNotes = [];
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            let nooote = scale[rint(0,scale.length-1)]; 
+            newNotes.push(nooote);
+            newArray[i][0] = nooote;
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add times to newArray
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i][1] = newTimes[i];
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add velocitys to newArray
+        
+        let newVelos = [];
+        let newVeloc = [];
+        
+        newVeloc = [...velocity];
+        
+        for(let i = 0;i < silence;i++){
+        	newVeloc.push(0);
+        };
+        
+        //console.log("silence: "+silence);
+        //console.log("newVelos: "+newVelos);
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            let velooo = newVeloc[rint(0,newVeloc.length-1)];
+            newArray[i][2] = velooo;
+            newVelos.push(velooo);
+        };
+         
+         //console.log("newArray: "+newArray);
+         
+         // Add to frontMemory
+         
+         frontMemory.push(newArray);
+         
+         
+         // Apply to playing score
+         
+         frontTimes = newTimes;
+         frontVelos = newVelos;
+         frontNotes = newNotes;
+         
+         frontScore = newArray;
+    };
+    
+
+    // newLeft(timeAlt,notesTimes,velocity,silence)
+
+    function newLeft(timeAlt,notesTimes,velocity,silence){
+	
+	let newTime = mtime;
+
+	   let timeAltOperator = timeAlt.substring(1);
+
+        if(timeAlt[0] == "/"){
+		newTime = mtime / timeAltOperator;
+	};
+        if(timeAlt[0] == "x"){
+		newTime = mtime * timeAltOperator;
+	};
+	
+	//console.log("mtime: "+mtime);
+	//console.log("newTime: "+newTime);
+
+    let suming = 0;
+	let pre = 0;
+	let newTimesNorm = [];
+	
+	let i = 0.0;
+	
+	do {
+  		pre = notesTimes[rint(0,notesTimes.length-1)];
+  		newTimesNorm.push(pre);
+  		i = i + pre;
+	}
+	while (i < 1.0);
+	
+	//console.log("newTimesNorm: "+newTimesNorm);
+	
+	let newTimes = [];
+	
+     	for(let i=0;i<newTimesNorm.length;i++){
+             newTimes.push(newTimesNorm[i]*newTime);
+        };
+        
+        //console.log("newTimes: "+newTimes);
+                
+        let newArray = [];
+    
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i] = [];
+        };
+    
+        // Add notes to newArray
+        
+        let newNotes = [];
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            let nooote = scale[rint(0,scale.length-1)]; 
+            newNotes.push(nooote);
+            newArray[i][0] = nooote;
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add times to newArray
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i][1] = newTimes[i];
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add velocitys to newArray
+        
+        let newVelos = [];
+        let newVeloc = [];
+        
+        newVeloc = [...velocity];
+        
+        for(let i = 0;i < silence;i++){
+        	newVeloc.push(0);
+        };
+        
+        //console.log("silence: "+silence);
+        //console.log("newVelos: "+newVelos);
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            let velooo = newVeloc[rint(0,newVeloc.length-1)];
+            newArray[i][2] = velooo;
+            newVelos.push(velooo);
+        };
+         
+         //console.log("newArray: "+newArray);
+         
+         // Add to leftMemory
+         
+         leftMemory.push(newArray);
+         
+         
+         // Apply to playing score
+         
+         leftTimes = newTimes;
+         leftVelos = newVelos;
+         leftNotes = newNotes;
+         
+         leftScore = newArray;
+    };
+    
+    // newRight
+    
+    function newRight(timeAlt,notesTimes,velocity,silence){
+	
+	let newTime = mtime;
+
+	   let timeAltOperator = timeAlt.substring(1);
+
+        if(timeAlt[0] == "/"){
+		newTime = mtime / timeAltOperator;
+	};
+        if(timeAlt[0] == "x"){
+		newTime = mtime * timeAltOperator;
+	};
+	
+	//console.log("mtime: "+mtime);
+	//console.log("newTime: "+newTime);
+
+    let suming = 0;
+	let pre = 0;
+	let newTimesNorm = [];
+	
+	let i = 0.0;
+	
+	do {
+  		pre = notesTimes[rint(0,notesTimes.length-1)];
+  		newTimesNorm.push(pre);
+  		i = i + pre;
+	}
+	while (i < 1.0);
+	
+	//console.log("newTimesNorm: "+newTimesNorm);
+	
+	let newTimes = [];
+	
+     	for(let i=0;i<newTimesNorm.length;i++){
+             newTimes.push(newTimesNorm[i]*newTime);
+        };
+        
+        //console.log("newTimes: "+newTimes);
+                
+        let newArray = [];
+    
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i] = [];
+        };
+    
+        // Add notes to newArray
+        
+        let newNotes = [];
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            let nooote = scale[rint(0,scale.length-1)]; 
+            newNotes.push(nooote);
+            newArray[i][0] = nooote;
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add times to newArray
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i][1] = newTimes[i];
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add velocitys to newArray
+        
+        let newVelos = [];
+        let newVeloc = [];
+        
+        newVeloc = [...velocity];
+        
+        for(let i = 0;i < silence;i++){
+        	newVeloc.push(0);
+        };
+        
+        //console.log("silence: "+silence);
+        //console.log("newVelos: "+newVelos);
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            let velooo = newVeloc[rint(0,newVeloc.length-1)];
+            newArray[i][2] = velooo;
+            newVelos.push(velooo);
+        };
+         
+         //console.log("newArray: "+newArray);
+         
+         // Add to leftMemory
+         
+         rightMemory.push(newArray);
+         
+         // Apply to playing score
+         
+         rightTimes = newTimes;
+         rightVelos = newVelos;
+         rightNotes = newNotes;
+         
+         rightScore = newArray;
+    };
+
+    function rearPattern(patternNumber,repo){
+        
+        let repoArray = [];
+        let len = 0;
+
+        for(let i = 0; i < patternNumber;i++){
+            let noo = repo[rint(0,repo.length-1)];
+            repoArray.push(noo);
+            len = len + rearMemory[noo].length;
+        };        
+        
+        let newArray = [];
+    
+        for (let i = 0; i < len; i++) {
+            newArray[i] = [];
+        };
+        
+        // Add notes
+        
+        let newNotes = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = rearMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let noote = rearMemory[repoArray[i]][j][0];
+                 newNotes.push(noote);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][0] = newNotes[i];
+        }
+        
+        
+        // Add times
+        
+        let newTimes = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = rearMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let length = rearMemory[repoArray[i]][j][1];
+                 newTimes.push(length);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][1] = newTimes[i];
+        }
+        
+        // Add velos
+        
+        let newVelos = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = rearMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let velo = rearMemory[repoArray[i]][j][2];
+                 newVelos.push(velo);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][2] = newVelos[i];
+        }
+        
+         // Add to rearMemoryPattern
+         
+         rearMemoryPattern.push(newArray);
+         
+         // Apply to playing score
+         
+         rearTimes = newTimes;
+         rearVelos = newVelos;
+         rearNotes = newNotes;
+         
+         rearScore = newArray;          
+        
+        };
+
+    function frontPattern(patternNumber,repo){
+        
+        let repoArray = [];
+        let len = 0;
+
+        for(let i = 0; i < patternNumber;i++){
+            let noo = repo[rint(0,repo.length-1)];
+            repoArray.push(noo);
+            len = len + frontMemory[noo].length;
+        };        
+        
+        let newArray = [];
+    
+        for (let i = 0; i < len; i++) {
+            newArray[i] = [];
+        };
+        
+        // Add notes
+        
+        let newNotes = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = frontMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let noote = frontMemory[repoArray[i]][j][0];
+                 newNotes.push(noote);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][0] = newNotes[i];
+        }
+        
+        
+        // Add times
+        
+        let newTimes = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = frontMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let length = frontMemory[repoArray[i]][j][1];
+                 newTimes.push(length);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][1] = newTimes[i];
+        }
+        
+        // Add velos
+        
+        let newVelos = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = frontMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let velo = frontMemory[repoArray[i]][j][2];
+                 newVelos.push(velo);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][2] = newVelos[i];
+        }
+        
+         // Add to frontMemoryPattern
+         
+         frontMemoryPattern.push(newArray);
+         
+         // Apply to playing score
+         
+         frontTimes = newTimes;
+         frontVelos = newVelos;
+         frontNotes = newNotes;
+         
+         frontScore = newArray;          
+        
+        };
+
+    
+    function leftPattern(patternNumber,repo){
+        
+        let repoArray = [];
+        let len = 0;
+
+        for(let i = 0; i < patternNumber;i++){
+            let noo = repo[rint(0,repo.length-1)];
+            repoArray.push(noo);
+            len = len + leftMemory[noo].length;
+        };        
+        
+        let newArray = [];
+    
+        for (let i = 0; i < len; i++) {
+            newArray[i] = [];
+        };
+        
+        // Add notes
+        
+        let newNotes = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = leftMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let noote = leftMemory[repoArray[i]][j][0];
+                 newNotes.push(noote);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][0] = newNotes[i];
+        }
+        
+        
+        // Add times
+        
+        let newTimes = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = leftMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let length = leftMemory[repoArray[i]][j][1];
+                 newTimes.push(length);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][1] = newTimes[i];
+        }
+        
+        // Add velos
+        
+        let newVelos = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = leftMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let velo = leftMemory[repoArray[i]][j][2];
+                 newVelos.push(velo);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][2] = newVelos[i];
+        }
+        
+         // Add to leftMemoryPattern
+         
+         leftMemoryPattern.push(newArray);
+         
+         // Apply to playing score
+         
+         leftTimes = newTimes;
+         leftVelos = newVelos;
+         leftNotes = newNotes;
+         
+         leftScore = newArray;          
+        
+        };
+
+        
+    // rightPattern(number,repo) Create a random pattern from repo rightNemory and number length 
+    // rightPattern(rint(4,12),[0,1,2,3,4,5,6,7,8,9,10,11])
+    
+    function rightPattern(patternNumber,repo){
+        
+        let repoArray = [];
+        let len = 0;
+
+        for(let i = 0; i < patternNumber;i++){
+            let noo = repo[rint(0,repo.length-1)];
+            repoArray.push(noo);
+            len = len + rightMemory[noo].length;
+        };        
+        
+        let newArray = [];
+    
+        for (let i = 0; i < len; i++) {
+            newArray[i] = [];
+        };
+        
+        // Add notes
+        
+        let newNotes = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = rightMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let noote = rightMemory[repoArray[i]][j][0];
+                 newNotes.push(noote);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][0] = newNotes[i];
+        }
+        
+        
+        // Add times
+        
+        let newTimes = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = rightMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let length = rightMemory[repoArray[i]][j][1];
+                 newTimes.push(length);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][1] = newTimes[i];
+        }
+        
+        // Add velos
+        
+        let newVelos = [];
+        
+        for (let i = 0; i < patternNumber; i++) {
+            let memoryLengths = rightMemory[repoArray[i]].length;
+             for (let j = 0; j < memoryLengths; j++) {
+                 let velo = rightMemory[repoArray[i]][j][2];
+                 newVelos.push(velo);
+             }
+        };
+        
+        for (let i = 0; i < len; i++) {
+            newArray[i][2] = newVelos[i];
+        }
+        
+         // Add to rightMemoryPattern
+         
+         rightMemoryPattern.push(newArray);
+         
+         // Apply to playing score
+         
+         rightTimes = newTimes;
+         rightVelos = newVelos;
+         rightNotes = newNotes;
+         
+         rightScore = newArray;          
+        
+        }
+    
+
+    
+    // leftDrone(mtimeAlt,velocity) : Make a drone type
+    // - mtimeAlt (multiplier or divisor of mtime) TIP: Large times (+1000) but cnstrain to sample duration.
+    // - velocity (array of possible velocitys)
+    
+    function leftDrone(timeAlt,velocity){
+        
+       let newTime = mtime;
+
+	   let timeAltOperator = timeAlt.substring(1);
+
+        if(timeAlt[0] == "/"){
+		    newTime = mtime / timeAltOperator;
+	    };
+        if(timeAlt[0] == "x"){
+		    newTime = mtime * timeAltOperator;
+	    };
+	    
+	    let repes = rint(2,6);
+	    
+	    let newTimes = [];
+	
+     	for(let i=0;i<repes;i++){
+             newTimes.push(newTime);
+        };
+        
+        let newArray = [];
+    
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i] = [];
+        };
+    
+        // Add notes to newArray
+        
+        let newNotes = [];
+        
+        let nooote = scale[rint(0,scale.length-1)]; 
+        
+        for (let i = 0; i < newTimes.length; i++) {
+                newNotes.push(nooote);
+                newArray[i][0] = nooote;
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add times to newArray
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i][1] = newTimes[i];
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add velocitys to newArray
+        
+        let newVelos = [];
+        
+        newVeloc = [...velocity];
+        
+        let velooo = newVeloc[rint(0,newVeloc.length-1)];
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            
+            newArray[i][2] = velooo;
+            newVelos.push(velooo);
+        };
+	   
+         // Add to leftMemory
+         
+         leftMemoryDrone.push(newArray);
+         
+         // Apply to playing score
+         
+         leftTimes = newTimes;
+         leftVelos = newVelos;
+         leftNotes = newNotes;
+         
+         leftScore = newArray;
+    };
+    
+    function rearDrone(timeAlt,velocity){
+        
+       let newTime = mtime;
+
+	   let timeAltOperator = timeAlt.substring(1);
+
+        if(timeAlt[0] == "/"){
+		    newTime = mtime / timeAltOperator;
+	    };
+        if(timeAlt[0] == "x"){
+		    newTime = mtime * timeAltOperator;
+	    };
+	    
+	    let repes = rint(2,6);
+	    
+	    let newTimes = [];
+	
+     	for(let i=0;i<repes;i++){
+             newTimes.push(newTime);
+        };
+        
+        let newArray = [];
+    
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i] = [];
+        };
+    
+        // Add notes to newArray
+        
+        let newNotes = [];
+        
+        let nooote = scale[rint(0,scale.length-1)]; 
+        
+        for (let i = 0; i < newTimes.length; i++) {
+                newNotes.push(nooote);
+                newArray[i][0] = nooote;
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add times to newArray
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i][1] = newTimes[i];
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add velocitys to newArray
+        
+        let newVelos = [];
+        
+        newVeloc = [...velocity];
+        
+        let velooo = newVeloc[rint(0,newVeloc.length-1)];
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            
+            newArray[i][2] = velooo;
+            newVelos.push(velooo);
+        };
+	   
+         // Add to rearMemory
+         
+         rearMemoryDrone.push(newArray);
+         
+         // Apply to playing score
+         
+         rearTimes = newTimes;
+         rearVelos = newVelos;
+         rearNotes = newNotes;
+         
+         rearScore = newArray;
+    };
+
+    function frontDrone(timeAlt,velocity){
+        
+       let newTime = mtime;
+
+	   let timeAltOperator = timeAlt.substring(1);
+
+        if(timeAlt[0] == "/"){
+		    newTime = mtime / timeAltOperator;
+	    };
+        if(timeAlt[0] == "x"){
+		    newTime = mtime * timeAltOperator;
+	    };
+	    
+	    let repes = rint(2,6);
+	    
+	    let newTimes = [];
+	
+     	for(let i=0;i<repes;i++){
+             newTimes.push(newTime);
+        };
+        
+        let newArray = [];
+    
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i] = [];
+        };
+    
+        // Add notes to newArray
+        
+        let newNotes = [];
+        
+        let nooote = scale[rint(0,scale.length-1)]; 
+        
+        for (let i = 0; i < newTimes.length; i++) {
+                newNotes.push(nooote);
+                newArray[i][0] = nooote;
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add times to newArray
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i][1] = newTimes[i];
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add velocitys to newArray
+        
+        let newVelos = [];
+        
+        newVeloc = [...velocity];
+        
+        let velooo = newVeloc[rint(0,newVeloc.length-1)];
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            
+            newArray[i][2] = velooo;
+            newVelos.push(velooo);
+        };
+	   
+         // Add to frontMemory
+         
+         frontMemoryDrone.push(newArray);
+         
+         // Apply to playing score
+         
+         frontTimes = newTimes;
+         frontVelos = newVelos;
+         frontNotes = newNotes;
+         
+         frontScore = newArray;
+    };
+        
+        
+    
+    // RightDrone
+ 
+    function rightDrone(timeAlt,velocity){
+        
+       let newTime = mtime;
+
+	   let timeAltOperator = timeAlt.substring(1);
+
+        if(timeAlt[0] == "/"){
+		    newTime = mtime / timeAltOperator;
+	    };
+        if(timeAlt[0] == "x"){
+		    newTime = mtime * timeAltOperator;
+	    };
+	    
+	    let repes = rint(2,6);
+	    
+	    let newTimes = [];
+	
+     	for(let i=0;i<repes;i++){
+             newTimes.push(newTime);
+        };
+        
+        let newArray = [];
+    
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i] = [];
+        };
+    
+        // Add notes to newArray
+        
+        let newNotes = [];
+        
+        let nooote = scale[rint(0,scale.length-1)]; 
+        
+        for (let i = 0; i < newTimes.length; i++) {
+                newNotes.push(nooote);
+                newArray[i][0] = nooote;
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add times to newArray
+        for (let i = 0; i < newTimes.length; i++) {
+            newArray[i][1] = newTimes[i];
+        };
+        
+        //console.log("newArray: "+newArray);
+        
+        // Add velocitys to newArray
+        
+        let newVelos = [];
+        
+        newVeloc = [...velocity];
+        
+        let velooo = newVeloc[rint(0,newVeloc.length-1)];
+        
+        for (let i = 0; i < newTimes.length; i++) {
+            
+            newArray[i][2] = velooo;
+            newVelos.push(velooo);
+        };
+	   
+         // Add to rightMemory
+         
+         rightMemoryDrone.push(newArray);
+         
+         // Apply to playing score
+         
+         rightTimes = newTimes;
+         rightVelos = newVelos;
+         rightNotes = newNotes;
+         
+         rightScore = newArray;
+    };
+
+    function getRear(memo){
+        rearScore = rearMemory[memo];
+        //console.log(rearMemory[memo]);
+    };
+    
+
+    function getFront(memo){
+        frontScore = frontMemory[memo];
+        //console.log(frontMemory[memo]);
+    };
+ 
+    // getLeft(int) Get int score from leftMemory
+    
+    function getLeft(memo){
+        leftScore = leftMemory[memo];
+        //console.log(leftMemory[memo]);
+    };
+
+    // getRight(int) Get int score from rightMemory
+    
+    function getRight(memo){
+        rightScore = rightMemory[memo];
+        //console.log(rightMemory[memo]);
+    };
+    
+    // getLeftPattern(int) Get int score from leftMemoryPattern
+    
+    function getLeftPattern(memo){
+        leftScore = leftMemoryPattern[memo];
+        //console.log(leftMemory[memo]);
+    };
+
+    // getRightPattern(int) Get int score from rightMemoryPattern
+    
+    function getRightPattern(memo){
+        rightScore = rightMemoryPattern[memo];
+        //console.log(rightMemory[memo]);
+    };
+    
+    function getRearPattern(memo){
+        rearScore = rearMemoryPattern[memo];
+        //console.log(rearMemory[memo]);
+    };
+    
+    function getFrontPattern(memo){
+        frontScore = frontMemoryPattern[memo];
+        //console.log(frontMemory[memo]);
+    };
+    
+    function getLeftDrone(memo){
+        leftScore = leftMemoryDrone[memo];
+    };
+
+    function getRightDrone(memo){
+        rightScore = rightMemoryDrone[memo];
+    };
+    
+    function getRearDrone(memo){
+        rearScore = rearMemoryDrone[memo];
+    };
+    
+    function getFrontDrone(memo){
+        frontScore = frontMemoryDrone[memo];
+    };
+    
+
+    // Function for save score
+
+    function saveScore(name) {
+          var textToWrite = "";
+          
+          for(var i = 0; i < code_score.length; i++) {
+            for(var j = 0; j < code_score[i].length; j++) {
+               //console.log("i:"+i);
+               //console.log("j:"+j);
+               //console.log(code_score[i][j]);
+               if(j == 1){
+                   textToWrite += "#";
+                   textToWrite += code_score[i][j];
+               }else{
+                   textToWrite += "@";
+                   textToWrite += code_score[i][j];
+                   
+               }
+            }
+          };
+          
+          
+          filename = name+'-'+date()+'.js';
+          var textFileAsBlob = new Blob([textToWrite], { type: "text/plain;charset=utf-8" });
+          var fileNameToSaveAs = filename;
+          var downloadLink = document.createElement("a"); downloadLink.download = fileNameToSaveAs; downloadLink.innerHTML = "Download File"; if (window.webkitURL != null) {
+            // Chrome allows the link to be clicked
+            // without actually adding it to the DOM.
+            downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob); } else { // Firefox requires the link to be added to the DOM // before it can be clicked.
+            downloadLink.href = window.URL.createObjectURL(textFileAsBlob); downloadLink.onclick = destroyClickedElement; downloadLink.style.display = "none"; document.body.appendChild(downloadLink); }
+            downloadLink.click();
+        };
+        
+        // Open and play score
+        
+        function openplayScore(e) {
+              var file = e.target.files[0];
+              if (!file) {
+                return;
+              }
+              var reader = new FileReader();
+              reader.onload = function(e) {
+                var contents = e.target.result;
+                
+                
+                let newCodeFile = contents.replace(/(\r\n|\n|\r)/gm, "");
+                let newCodeFile1 = newCodeFile.replaceAll(/\s/g,'');
+                
+                
+                let newCodeArray1 = newCodeFile1.split("@");
+                
+                let newCodeArray2 = [];
+                
+                newCodeArray1.map((elem) => {
+                    if (elem !== '') {
+                        newCodeArray2.push(elem);
+                }
+                });
+                
+                code_score = [];
+                
+                    
+                //for (let i = 0; i < newCodeArray2.length; i++) {
+                            //code_score[i] = [];
+                //};
+                
+                for (let i = 0; i < newCodeArray2.length; i++) {
+                    
+                    code_score.push(newCodeArray2[i].split("#"))
+                };
+    
+                //for(let i=0;i<newCodeFile.length//;i++){
+                    
+                //}
+                
+                console.log(newCodeArray2);
+                console.log(code_score);
+              };
+              reader.readAsText(file);
+              
+              fullscreen(true);
+                repeatscore = 1;
+	            indexscore  = 0;
+	            
+	            setTimeout(scoreCounter, 5000);
+	           
+        }
+        
+        // function for open score
+
+          function openScore(e) {
+              
+              var file = e.target.files[0];
+              if (!file) {
+                return;
+              }
+              var reader = new FileReader();
+              reader.onload = function(e) {
+                var contents = e.target.result;
+                
+                
+                let newCodeFile = contents.replace(/(\r\n|\n|\r)/gm, "");
+                let newCodeFile1 = newCodeFile.replaceAll(/\s/g,'');
+                
+                
+                let newCodeArray1 = newCodeFile1.split("@");
+                
+                let newCodeArray2 = [];
+                
+                newCodeArray1.map((elem) => {
+                    if (elem !== '') {
+                        newCodeArray2.push(elem);
+                }
+                });
+                
+                code_score = [];
+                
+                    
+                //for (let i = 0; i < newCodeArray2.length; i++) {
+                            //code_score[i] = [];
+                //};
+                
+                for (let i = 0; i < newCodeArray2.length; i++) {
+                    
+                    code_score.push(newCodeArray2[i].split("#"))
+                };
+    
+                //for(let i=0;i<newCodeFile.length//;i++){
+                    
+                //}
+                
+                console.log(newCodeArray2);
+                console.log(code_score);
+              };
+              reader.readAsText(file);
+        };
+        
+        // function for open synth
+
+          function openSynth(e) {
+              var file = e.target.files[0];
+              if (!file) {
+                return;
+              }
+              var reader = new FileReader();
+              reader.onload = function(e) {
+              var contents = e.target.result;
+              
+              console.log(contents); 
+              eval(contents); 
+            
+              };
+              reader.readAsText(file);
+              
+
+        };
+        
+        // function for command LoadInstrument
+
+        function loadInstrument(name) {
+		    eval(name); 
+        };
+        
+        // Get Date
+        function date(){
+	        let date = new Date();
+	        let year = date.getFullYear();
+	        let month = date.getMonth()+1;
+	        let day = date.getDate();
+	        let hours = date.getHours();
+	        let minutes = date.getMinutes();
+	        let seconds = date.getSeconds();
+	        let fecha = year+'-'+month+'-'+day+'_'+hours+'-'+minutes+'-'+seconds;
+	        return fecha;
+        };
+        
+        // Replace one random note of leftScore
+        
+        function randomNoteLeft(){
+            leftScore[rint(0,leftScore.length-1)][0] = scale[rint(0,scale.length-1)];
+        };
+        
+        // Replace one random note of rightScore
+        
+        function randomNoteRight(){
+            rightScore[rint(0,rightScore.length-1)][0] = scale[rint(0,scale.length-1)];
+        };
+        
+        // Replace one random note of rearScore
+        
+        function randomNoteRear(){
+            rearScore[rint(0,rearScore.length-1)][0] = scale[rint(0,scale.length-1)];
+        };
+        
+        // Replace one random note of frontScore
+        
+        function randomNoteFront(){
+            frontScore[rint(0,frontScore.length-1)][0] = scale[rint(0,scale.length-1)];
+        };
+        
+        // Show text on canvas:
+        
+        function title(txt){
+            clear();
+            drawing = "fill(255);textAlign(CENTER);textSize(width/40);text('"+txt+"', width/2, height/2)"
+        }
+        
+        // fullscreen canvas
+        
+        function fullCanvas(){
+           window.open("fullCanvas.html","_self");
+
+        }
+        
+        // media_recording (don't work on android)
+
+        
+        async function startRecording(){
+            var stream =  await navigator.mediaDevices.getDisplayMedia(
+              {video: {mediaSource: "screen"}, audio: true}
+            );
+
+            deviceRecorder = new deviceRecorder(stream, {mimeType: "video/webm"});
+            deviceRecorder.ondataavailable = (e) => {
+                if(e.data.size > 0){
+                     chunks.push(e.data);
+            }
+            }
+            deviceRecorder.onstop = () => {
+                chunks = [];
+            }
+            deviceRecorder.start(250)
+        }
+        
+        function stopRecording(){
+            var filename = window.prompt("File name", "video"); // Ask the file name
+
+            deviceRecorder.stop(); // Stopping the recording
+            blob = new Blob(chunks, {type: "video/webm"})
+            chunks = [] // Resetting the data chunks
+            var dataDownloadUrl = URL.createObjectURL(blob);
+
+            // Downloadin it onto the user's device
+            let a = document.createElement('a')
+            a.href = dataDownloadUrl;
+            a.download = `${filename}.webm`
+            a.click()
+    
+            URL.revokeObjectURL(dataDownloadUrl)
+        }
+        
+        // P5.js functions:
+
+        function polygon(x, y, radius, npoints) {
+            let angle = TWO_PI / npoints;
+            beginShape();
+            for (let a = 0; a < TWO_PI; a += angle) {
+              let sx = x + cos(a) * radius;
+              let sy = y + sin(a) * radius;
+              vertex(sx, sy);
+            }
+            endShape(CLOSE);
+        };
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// INSTRUMENTS
+
+let rhodes_1= "reverb = new Tone.Reverb({wet: 0.5,decay: 2}).toDestination();piano = new Tone.Sampler({urls: {'A0': '/upigr_samples/rhodes_1/A0.mp3','A1': '/upigr_samples/rhodes_1/A1.mp3','A2': '/upigr_samples/rhodes_1/A2.mp3','A3': '/upigr_samples/rhodes_1/A3.mp3','A4': '/upigr_samples/rhodes_1/A4.mp3','A5': '/upigr_samples/rhodes_1/A5.mp3','A6': '/upigr_samples/rhodes_1/A6.mp3','A7': '/upigr_samples/rhodes_1/A7.mp3','Ab0': '/upigr_samples/rhodes_1/Ab0.mp3','Ab1': '/upigr_samples/rhodes_1/Ab1.mp3','Ab2': '/upigr_samples/rhodes_1/Ab2.mp3','Ab3': '/upigr_samples/rhodes_1/Ab3.mp3','Ab4': '/upigr_samples/rhodes_1/Ab4.mp3','Ab5': '/upigr_samples/rhodes_1/Ab5.mp3','Ab6': '/upigr_samples/rhodes_1/Ab6.mp3','Ab7': '/upigr_samples/rhodes_1/Ab7.mp3','B0': '/upigr_samples/rhodes_1/B0.mp3','B1': '/upigr_samples/rhodes_1/B1.mp3','B2': '/upigr_samples/rhodes_1/B2.mp3','B3': '/upigr_samples/rhodes_1/B3.mp3','B4': '/upigr_samples/rhodes_1/B4.mp3','B5': '/upigr_samples/rhodes_1/B5.mp3','B6': '/upigr_samples/rhodes_1/B6.mp3','B7': '/upigr_samples/rhodes_1/B7.mp3','Bb0': '/upigr_samples/rhodes_1/Bb0.mp3','Bb1': '/upigr_samples/rhodes_1/Bb1.mp3','Bb2': '/upigr_samples/rhodes_1/Bb2.mp3','Bb3': '/upigr_samples/rhodes_1/Bb3.mp3','Bb4': '/upigr_samples/rhodes_1/Bb4.mp3','Bb5': '/upigr_samples/rhodes_1/Bb5.mp3','Bb6': '/upigr_samples/rhodes_1/Bb6.mp3','Bb7': '/upigr_samples/rhodes_1/Bb7.mp3','C0': '/upigr_samples/rhodes_1/C0.mp3','C1': '/upigr_samples/rhodes_1/C1.mp3','C2': '/upigr_samples/rhodes_1/C2.mp3','C3': '/upigr_samples/rhodes_1/C3.mp3','C4': '/upigr_samples/rhodes_1/C4.mp3','C5': '/upigr_samples/rhodes_1/C5.mp3','C6': '/upigr_samples/rhodes_1/C6.mp3','C7': '/upigr_samples/rhodes_1/C7.mp3','C8': '/upigr_samples/rhodes_1/C8.mp3','D0': '/upigr_samples/rhodes_1/D0.mp3','D1': '/upigr_samples/rhodes_1/D1.mp3','D2': '/upigr_samples/rhodes_1/D2.mp3','D3': '/upigr_samples/rhodes_1/D3.mp3','D4': '/upigr_samples/rhodes_1/D4.mp3','D5': '/upigr_samples/rhodes_1/D5.mp3','D6': '/upigr_samples/rhodes_1/D6.mp3','D7': '/upigr_samples/rhodes_1/D7.mp3','Db0': '/upigr_samples/rhodes_1/Db0.mp3','Db1': '/upigr_samples/rhodes_1/Db1.mp3','Db2': '/upigr_samples/rhodes_1/Db2.mp3','Db3': '/upigr_samples/rhodes_1/Db3.mp3','Db4': '/upigr_samples/rhodes_1/Db4.mp3','Db5': '/upigr_samples/rhodes_1/Db5.mp3','Db6': '/upigr_samples/rhodes_1/Db6.mp3','Db7': '/upigr_samples/rhodes_1/Db7.mp3','E0': '/upigr_samples/rhodes_1/E0.mp3','E1': '/upigr_samples/rhodes_1/E1.mp3','E2': '/upigr_samples/rhodes_1/E2.mp3','E3': '/upigr_samples/rhodes_1/E3.mp3','E4': '/upigr_samples/rhodes_1/E4.mp3','E5': '/upigr_samples/rhodes_1/E5.mp3','E6': '/upigr_samples/rhodes_1/E6.mp3','E7': '/upigr_samples/rhodes_1/E7.mp3','Eb0': '/upigr_samples/rhodes_1/Eb0.mp3','Eb1': '/upigr_samples/rhodes_1/Eb1.mp3','Eb2': '/upigr_samples/rhodes_1/Eb2.mp3','Eb3': '/upigr_samples/rhodes_1/Eb3.mp3','Eb4': '/upigr_samples/rhodes_1/Eb4.mp3','Eb5': '/upigr_samples/rhodes_1/Eb5.mp3','Eb6': '/upigr_samples/rhodes_1/Eb6.mp3','Eb7': '/upigr_samples/rhodes_1/Eb7.mp3','F0': '/upigr_samples/rhodes_1/F0.mp3','F1': '/upigr_samples/rhodes_1/F1.mp3','F2': '/upigr_samples/rhodes_1/F2.mp3','F3': '/upigr_samples/rhodes_1/F3.mp3','F4': '/upigr_samples/rhodes_1/F4.mp3','F5': '/upigr_samples/rhodes_1/F5.mp3','F6': '/upigr_samples/rhodes_1/F6.mp3','F7': '/upigr_samples/rhodes_1/F7.mp3','G0': '/upigr_samples/rhodes_1/G0.mp3','G1': '/upigr_samples/rhodes_1/G1.mp3','G2': '/upigr_samples/rhodes_1/G2.mp3','G3': '/upigr_samples/rhodes_1/G3.mp3','G4': '/upigr_samples/rhodes_1/G4.mp3','G5': '/upigr_samples/rhodes_1/G5.mp3','G6': '/upigr_samples/rhodes_1/G6.mp3','G7': '/upigr_samples/rhodes_1/G7.mp3','Gb0': '/upigr_samples/rhodes_1/Gb0.mp3','Gb1': '/upigr_samples/rhodes_1/Gb1.mp3','Gb2': '/upigr_samples/rhodes_1/Gb2.mp3','Gb3': '/upigr_samples/rhodes_1/Gb3.mp3','Gb4': '/upigr_samples/rhodes_1/Gb4.mp3','Gb5': '/upigr_samples/rhodes_1/Gb5.mp3','Gb6': '/upigr_samples/rhodes_1/Gb6.mp3','Gb7': '/upigr_samples/rhodes_1/Gb7.mp3'}, onload: () => { console.log('..rhodes_1 Samples loaded..');}}).connect(reverb);";
+
+
+let piano_1 = "reverb = new Tone.Reverb({wet: 0.5,decay: 2}).toDestination();piano = new Tone.Sampler({urls: {'A0': 'A0.mp3','A1': 'A1.mp3','A2': 'A2.mp3','A3': 'A3.mp3','A4': 'A4.mp3','A5': 'A5.mp3','A6': 'A6.mp3','A7': 'A7.mp3','Ab0': 'Ab0.mp3','Ab1': 'Ab1.mp3','Ab2': 'Ab2.mp3','Ab3': 'Ab3.mp3','Ab4': 'Ab4.mp3','Ab5': 'Ab5.mp3','Ab6': 'Ab6.mp3','Ab7': 'Ab7.mp3','B0': 'B0.mp3','B1': 'B1.mp3','B2': 'B2.mp3','B3': 'B3.mp3','B4': 'B4.mp3','B5': 'B5.mp3','B6': 'B6.mp3','B7': 'B7.mp3','Bb0': 'Bb0.mp3','Bb1': 'Bb1.mp3','Bb2': 'Bb2.mp3','Bb3': 'Bb3.mp3','Bb4': 'Bb4.mp3','Bb5': 'Bb5.mp3','Bb6': 'Bb6.mp3','Bb7': 'Bb7.mp3','C0': 'C0.mp3','C1': 'C1.mp3','C2': 'C2.mp3','C3': 'C3.mp3','C4': 'C4.mp3','C5': 'C5.mp3','C6': 'C6.mp3','C7': 'C7.mp3','C8': 'C8.mp3','D0': 'D0.mp3','D1': 'D1.mp3','D2': 'D2.mp3','D3': 'D3.mp3','D4': 'D4.mp3','D5': 'D5.mp3','D6': 'D6.mp3','D7': 'D7.mp3','Db0': 'Db0.mp3','Db1': 'Db1.mp3','Db2': 'Db2.mp3','Db3': 'Db3.mp3','Db4': 'Db4.mp3','Db5': 'Db5.mp3','Db6': 'Db6.mp3','Db7': 'Db7.mp3','E0': 'E0.mp3','E1': 'E1.mp3','E2': 'E2.mp3','E3': 'E3.mp3','E4': 'E4.mp3','E5': 'E5.mp3','E6': 'E6.mp3','E7': 'E7.mp3','Eb0': 'Eb0.mp3','Eb1': 'Eb1.mp3','Eb2': 'Eb2.mp3','Eb3': 'Eb3.mp3','Eb4': 'Eb4.mp3','Eb5': 'Eb5.mp3','Eb6': 'Eb6.mp3','Eb7': 'Eb7.mp3','F0': 'F0.mp3','F1': 'F1.mp3','F2': 'F2.mp3','F3': 'F3.mp3','F4': 'F4.mp3','F5': 'F5.mp3','F6': 'F6.mp3','F7': 'F7.mp3','G0': 'G0.mp3','G1': 'G1.mp3','G2': 'G2.mp3','G3': 'G3.mp3','G4': 'G4.mp3','G5': 'G5.mp3','G6': 'G6.mp3','G7': 'G7.mp3','Gb0': 'Gb0.mp3','Gb1': 'Gb1.mp3','Gb2': 'Gb2.mp3','Gb3': 'Gb3.mp3','Gb4': 'Gb4.mp3','Gb5': 'Gb5.mp3','Gb6': 'Gb6.mp3','Gb7': 'Gb7.mp3'},baseUrl: '/upigr_samples/piano_1/',onload: () => { console.log('..piano_1 Samples loaded..');}}).connect(reverb);";
+
+
+let celesta_1 = "reverb = new Tone.Reverb({wet: 0.5,decay: 2}).toDestination();piano = new Tone.Sampler({urls: {'A0': 'A0.mp3','A1': 'A1.mp3','A2': 'A2.mp3','A3': 'A3.mp3','A4': 'A4.mp3','A5': 'A5.mp3','A6': 'A6.mp3','A7': 'A7.mp3','Ab0': 'Ab0.mp3','Ab1': 'Ab1.mp3','Ab2': 'Ab2.mp3','Ab3': 'Ab3.mp3','Ab4': 'Ab4.mp3','Ab5': 'Ab5.mp3','Ab6': 'Ab6.mp3','Ab7': 'Ab7.mp3','B0': 'B0.mp3','B1': 'B1.mp3','B2': 'B2.mp3','B3': 'B3.mp3','B4': 'B4.mp3','B5': 'B5.mp3','B6': 'B6.mp3','B7': 'B7.mp3','Bb0': 'Bb0.mp3','Bb1': 'Bb1.mp3','Bb2': 'Bb2.mp3','Bb3': 'Bb3.mp3','Bb4': 'Bb4.mp3','Bb5': 'Bb5.mp3','Bb6': 'Bb6.mp3','Bb7': 'Bb7.mp3','C0': 'C0.mp3','C1': 'C1.mp3','C2': 'C2.mp3','C3': 'C3.mp3','C4': 'C4.mp3','C5': 'C5.mp3','C6': 'C6.mp3','C7': 'C7.mp3','C8': 'C8.mp3','D0': 'D0.mp3','D1': 'D1.mp3','D2': 'D2.mp3','D3': 'D3.mp3','D4': 'D4.mp3','D5': 'D5.mp3','D6': 'D6.mp3','D7': 'D7.mp3','Db0': 'Db0.mp3','Db1': 'Db1.mp3','Db2': 'Db2.mp3','Db3': 'Db3.mp3','Db4': 'Db4.mp3','Db5': 'Db5.mp3','Db6': 'Db6.mp3','Db7': 'Db7.mp3','E0': 'E0.mp3','E1': 'E1.mp3','E2': 'E2.mp3','E3': 'E3.mp3','E4': 'E4.mp3','E5': 'E5.mp3','E6': 'E6.mp3','E7': 'E7.mp3','Eb0': 'Eb0.mp3','Eb1': 'Eb1.mp3','Eb2': 'Eb2.mp3','Eb3': 'Eb3.mp3','Eb4': 'Eb4.mp3','Eb5': 'Eb5.mp3','Eb6': 'Eb6.mp3','Eb7': 'Eb7.mp3','F0': 'F0.mp3','F1': 'F1.mp3','F2': 'F2.mp3','F3': 'F3.mp3','F4': 'F4.mp3','F5': 'F5.mp3','F6': 'F6.mp3','F7': 'F7.mp3','G0': 'G0.mp3','G1': 'G1.mp3','G2': 'G2.mp3','G3': 'G3.mp3','G4': 'G4.mp3','G5': 'G5.mp3','G6': 'G6.mp3','G7': 'G7.mp3','Gb0': 'Gb0.mp3','Gb1': 'Gb1.mp3','Gb2': 'Gb2.mp3','Gb3': 'Gb3.mp3','Gb4': 'Gb4.mp3','Gb5': 'Gb5.mp3','Gb6': 'Gb6.mp3','Gb7': 'Gb7.mp3'},baseUrl: '/upigr_samples/celesta_1/',onload: () => { console.log('..celesta_1 Samples loaded..');}}).connect(reverb);";
+
+
+let vibraphone_1 = "reverb = new Tone.Reverb({wet: 0.5,decay: 2}).toDestination();piano = new Tone.Sampler({urls: {'A0': 'A0.mp3','A1': 'A1.mp3','A2': 'A2.mp3','A3': 'A3.mp3','A4': 'A4.mp3','A5': 'A5.mp3','A6': 'A6.mp3','A7': 'A7.mp3','Ab0': 'Ab0.mp3','Ab1': 'Ab1.mp3','Ab2': 'Ab2.mp3','Ab3': 'Ab3.mp3','Ab4': 'Ab4.mp3','Ab5': 'Ab5.mp3','Ab6': 'Ab6.mp3','Ab7': 'Ab7.mp3','B0': 'B0.mp3','B1': 'B1.mp3','B2': 'B2.mp3','B3': 'B3.mp3','B4': 'B4.mp3','B5': 'B5.mp3','B6': 'B6.mp3','B7': 'B7.mp3','Bb0': 'Bb0.mp3','Bb1': 'Bb1.mp3','Bb2': 'Bb2.mp3','Bb3': 'Bb3.mp3','Bb4': 'Bb4.mp3','Bb5': 'Bb5.mp3','Bb6': 'Bb6.mp3','Bb7': 'Bb7.mp3','C0': 'C0.mp3','C1': 'C1.mp3','C2': 'C2.mp3','C3': 'C3.mp3','C4': 'C4.mp3','C5': 'C5.mp3','C6': 'C6.mp3','C7': 'C7.mp3','C8': 'C8.mp3','D0': 'D0.mp3','D1': 'D1.mp3','D2': 'D2.mp3','D3': 'D3.mp3','D4': 'D4.mp3','D5': 'D5.mp3','D6': 'D6.mp3','D7': 'D7.mp3','Db0': 'Db0.mp3','Db1': 'Db1.mp3','Db2': 'Db2.mp3','Db3': 'Db3.mp3','Db4': 'Db4.mp3','Db5': 'Db5.mp3','Db6': 'Db6.mp3','Db7': 'Db7.mp3','E0': 'E0.mp3','E1': 'E1.mp3','E2': 'E2.mp3','E3': 'E3.mp3','E4': 'E4.mp3','E5': 'E5.mp3','E6': 'E6.mp3','E7': 'E7.mp3','Eb0': 'Eb0.mp3','Eb1': 'Eb1.mp3','Eb2': 'Eb2.mp3','Eb3': 'Eb3.mp3','Eb4': 'Eb4.mp3','Eb5': 'Eb5.mp3','Eb6': 'Eb6.mp3','Eb7': 'Eb7.mp3','F0': 'F0.mp3','F1': 'F1.mp3','F2': 'F2.mp3','F3': 'F3.mp3','F4': 'F4.mp3','F5': 'F5.mp3','F6': 'F6.mp3','F7': 'F7.mp3','G0': 'G0.mp3','G1': 'G1.mp3','G2': 'G2.mp3','G3': 'G3.mp3','G4': 'G4.mp3','G5': 'G5.mp3','G6': 'G6.mp3','G7': 'G7.mp3','Gb0': 'Gb0.mp3','Gb1': 'Gb1.mp3','Gb2': 'Gb2.mp3','Gb3': 'Gb3.mp3','Gb4': 'Gb4.mp3','Gb5': 'Gb5.mp3','Gb6': 'Gb6.mp3','Gb7': 'Gb7.mp3'},baseUrl: '/upigr_samples/vibraphone_1/',onload: () => { console.log('..vibraphone_1 Samples loaded..');}}).connect(reverb);";
+
+let mix_1 = "reverb = new Tone.Reverb({wet: 0.5,decay: 2}).toDestination();piano = new Tone.Sampler({urls: {'A0': '/upigr_samples/piano_1/A0.mp3','A1': '/upigr_samples/piano_1/A1.mp3','A2': '/upigr_samples/piano_1/A2.mp3','A3': '/upigr_samples/piano_1/A3.mp3','A4': '/upigr_samples/celesta_1/A4.mp3','A5': '/upigr_samples/celesta_1/A5.mp3','A6': '/upigr_samples/celesta_1/A6.mp3','A7': '/upigr_samples/celesta_1/A7.mp3','Ab0': '/upigr_samples/piano_1/Ab0.mp3','Ab1': '/upigr_samples/piano_1/Ab1.mp3','Ab2': '/upigr_samples/piano_1/Ab2.mp3','Ab3': '/upigr_samples/piano_1/Ab3.mp3','Ab4': '/upigr_samples/celesta_1/Ab4.mp3','Ab5': '/upigr_samples/celesta_1/Ab5.mp3','Ab6': '/upigr_samples/celesta_1/Ab6.mp3','Ab7': '/upigr_samples/celesta_1/Ab7.mp3','B0': '/upigr_samples/piano_1/B0.mp3','B1': '/upigr_samples/piano_1/B1.mp3','B2': '/upigr_samples/piano_1/B2.mp3','B3': '/upigr_samples/piano_1/B3.mp3','B4': '/upigr_samples/celesta_1/B4.mp3','B5': '/upigr_samples/celesta_1/B5.mp3','B6': '/upigr_samples/celesta_1/B6.mp3','B7': '/upigr_samples/celesta_1/B7.mp3','Bb0': '/upigr_samples/piano_1/Bb0.mp3','Bb1': '/upigr_samples/piano_1/Bb1.mp3','Bb2': '/upigr_samples/piano_1/Bb2.mp3','Bb3': '/upigr_samples/piano_1/Bb3.mp3','Bb4': '/upigr_samples/celesta_1/Bb4.mp3','Bb5': '/upigr_samples/celesta_1/Bb5.mp3','Bb6': '/upigr_samples/celesta_1/Bb6.mp3','Bb7': '/upigr_samples/celesta_1/Bb7.mp3','C0': '/upigr_samples/piano_1/C0.mp3','C1': '/upigr_samples/piano_1/C1.mp3','C2': '/upigr_samples/piano_1/C2.mp3','C3': '/upigr_samples/piano_1/C3.mp3','C4': '/upigr_samples/celesta_1/C4.mp3','C5': '/upigr_samples/celesta_1/C5.mp3','C6': '/upigr_samples/celesta_1/C6.mp3','C7': '/upigr_samples/celesta_1/C7.mp3','C8': '/upigr_samples/celesta_1/C8.mp3','D0': '/upigr_samples/piano_1/D0.mp3','D1': '/upigr_samples/piano_1/D1.mp3','D2': '/upigr_samples/piano_1/D2.mp3','D3': '/upigr_samples/piano_1/D3.mp3','D4': '/upigr_samples/celesta_1/D4.mp3','D5': '/upigr_samples/celesta_1/D5.mp3','D6': '/upigr_samples/celesta_1/D6.mp3','D7': '/upigr_samples/celesta_1/D7.mp3','Db0': '/upigr_samples/piano_1/Db0.mp3','Db1': '/upigr_samples/piano_1/Db1.mp3','Db2': '/upigr_samples/piano_1/Db2.mp3','Db3': '/upigr_samples/piano_1/Db3.mp3','Db4': '/upigr_samples/celesta_1/Db4.mp3','Db5': '/upigr_samples/celesta_1/Db5.mp3','Db6': '/upigr_samples/celesta_1/Db6.mp3','Db7': '/upigr_samples/celesta_1/Db7.mp3','E0': '/upigr_samples/piano_1/E0.mp3','E1': '/upigr_samples/piano_1/E1.mp3','E2': '/upigr_samples/piano_1/E2.mp3','E3': '/upigr_samples/piano_1/E3.mp3','E4': '/upigr_samples/celesta_1/E4.mp3','E5': '/upigr_samples/celesta_1/E5.mp3','E6': '/upigr_samples/celesta_1/E6.mp3','E7': '/upigr_samples/celesta_1/E7.mp3','Eb0': '/upigr_samples/piano_1/Eb0.mp3','Eb1': '/upigr_samples/piano_1/Eb1.mp3','Eb2': '/upigr_samples/piano_1/Eb2.mp3','Eb3': '/upigr_samples/piano_1/Eb3.mp3','Eb4': '/upigr_samples/celesta_1/Eb4.mp3','Eb5': '/upigr_samples/celesta_1/Eb5.mp3','Eb6': '/upigr_samples/celesta_1/Eb6.mp3','Eb7': '/upigr_samples/celesta_1/Eb7.mp3','F0': '/upigr_samples/piano_1/F0.mp3','F1': '/upigr_samples/piano_1/F1.mp3','F2': '/upigr_samples/piano_1/F2.mp3','F3': '/upigr_samples/piano_1/F3.mp3','F4': '/upigr_samples/celesta_1/F4.mp3','F5': '/upigr_samples/celesta_1/F5.mp3','F6': '/upigr_samples/celesta_1/F6.mp3','F7': '/upigr_samples/celesta_1/F7.mp3','G0': '/upigr_samples/piano_1/G0.mp3','G1': '/upigr_samples/piano_1/G1.mp3','G2': '/upigr_samples/piano_1/G2.mp3','G3': '/upigr_samples/piano_1/G3.mp3','G4': '/upigr_samples/celesta_1/G4.mp3','G5': '/upigr_samples/celesta_1/G5.mp3','G6': '/upigr_samples/celesta_1/G6.mp3','G7': '/upigr_samples/celesta_1/G7.mp3','Gb0': '/upigr_samples/piano_1/Gb0.mp3','Gb1': '/upigr_samples/piano_1/Gb1.mp3','Gb2': '/upigr_samples/piano_1/Gb2.mp3','Gb3': '/upigr_samples/piano_1/Gb3.mp3','Gb4': '/upigr_samples/celesta_1/Gb4.mp3','Gb5': '/upigr_samples/celesta_1/Gb5.mp3','Gb6': '/upigr_samples/celesta_1/Gb6.mp3','Gb7': '/upigr_samples/celesta_1/Gb7.mp3'}, onload: () => { console.log('..mix_1 Samples loaded..');}}).connect(reverb);";
+
+
+let strings_slow_1= "reverb = new Tone.Reverb({wet: 0.99,decay: 10}).toDestination();;piano = new Tone.Sampler({urls: {'A0': '/upigr_samples/strings_slow_1/A0.mp3','A1': '/upigr_samples/strings_slow_1/A1.mp3','A2': '/upigr_samples/strings_slow_1/A2.mp3','A3': '/upigr_samples/strings_slow_1/A3.mp3','A4': '/upigr_samples/strings_slow_1/A4.mp3','A5': '/upigr_samples/strings_slow_1/A5.mp3','A6': '/upigr_samples/strings_slow_1/A6.mp3','A7': '/upigr_samples/strings_slow_1/A7.mp3','Ab0': '/upigr_samples/strings_slow_1/Ab0.mp3','Ab1': '/upigr_samples/strings_slow_1/Ab1.mp3','Ab2': '/upigr_samples/strings_slow_1/Ab2.mp3','Ab3': '/upigr_samples/strings_slow_1/Ab3.mp3','Ab4': '/upigr_samples/strings_slow_1/Ab4.mp3','Ab5': '/upigr_samples/strings_slow_1/Ab5.mp3','Ab6': '/upigr_samples/strings_slow_1/Ab6.mp3','Ab7': '/upigr_samples/strings_slow_1/Ab7.mp3','B0': '/upigr_samples/strings_slow_1/B0.mp3','B1': '/upigr_samples/strings_slow_1/B1.mp3','B2': '/upigr_samples/strings_slow_1/B2.mp3','B3': '/upigr_samples/strings_slow_1/B3.mp3','B4': '/upigr_samples/strings_slow_1/B4.mp3','B5': '/upigr_samples/strings_slow_1/B5.mp3','B6': '/upigr_samples/strings_slow_1/B6.mp3','B7': '/upigr_samples/strings_slow_1/B7.mp3','Bb0': '/upigr_samples/strings_slow_1/Bb0.mp3','Bb1': '/upigr_samples/strings_slow_1/Bb1.mp3','Bb2': '/upigr_samples/strings_slow_1/Bb2.mp3','Bb3': '/upigr_samples/strings_slow_1/Bb3.mp3','Bb4': '/upigr_samples/strings_slow_1/Bb4.mp3','Bb5': '/upigr_samples/strings_slow_1/Bb5.mp3','Bb6': '/upigr_samples/strings_slow_1/Bb6.mp3','Bb7': '/upigr_samples/strings_slow_1/Bb7.mp3','C0': '/upigr_samples/strings_slow_1/C0.mp3','C1': '/upigr_samples/strings_slow_1/C1.mp3','C2': '/upigr_samples/strings_slow_1/C2.mp3','C3': '/upigr_samples/strings_slow_1/C3.mp3','C4': '/upigr_samples/strings_slow_1/C4.mp3','C5': '/upigr_samples/strings_slow_1/C5.mp3','C6': '/upigr_samples/strings_slow_1/C6.mp3','C7': '/upigr_samples/strings_slow_1/C7.mp3','C8': '/upigr_samples/strings_slow_1/C8.mp3','D0': '/upigr_samples/strings_slow_1/D0.mp3','D1': '/upigr_samples/strings_slow_1/D1.mp3','D2': '/upigr_samples/strings_slow_1/D2.mp3','D3': '/upigr_samples/strings_slow_1/D3.mp3','D4': '/upigr_samples/strings_slow_1/D4.mp3','D5': '/upigr_samples/strings_slow_1/D5.mp3','D6': '/upigr_samples/strings_slow_1/D6.mp3','D7': '/upigr_samples/strings_slow_1/D7.mp3','Db0': '/upigr_samples/strings_slow_1/Db0.mp3','Db1': '/upigr_samples/strings_slow_1/Db1.mp3','Db2': '/upigr_samples/strings_slow_1/Db2.mp3','Db3': '/upigr_samples/strings_slow_1/Db3.mp3','Db4': '/upigr_samples/strings_slow_1/Db4.mp3','Db5': '/upigr_samples/strings_slow_1/Db5.mp3','Db6': '/upigr_samples/strings_slow_1/Db6.mp3','Db7': '/upigr_samples/strings_slow_1/Db7.mp3','E0': '/upigr_samples/strings_slow_1/E0.mp3','E1': '/upigr_samples/strings_slow_1/E1.mp3','E2': '/upigr_samples/strings_slow_1/E2.mp3','E3': '/upigr_samples/strings_slow_1/E3.mp3','E4': '/upigr_samples/strings_slow_1/E4.mp3','E5': '/upigr_samples/strings_slow_1/E5.mp3','E6': '/upigr_samples/strings_slow_1/E6.mp3','E7': '/upigr_samples/strings_slow_1/E7.mp3','Eb0': '/upigr_samples/strings_slow_1/Eb0.mp3','Eb1': '/upigr_samples/strings_slow_1/Eb1.mp3','Eb2': '/upigr_samples/strings_slow_1/Eb2.mp3','Eb3': '/upigr_samples/strings_slow_1/Eb3.mp3','Eb4': '/upigr_samples/strings_slow_1/Eb4.mp3','Eb5': '/upigr_samples/strings_slow_1/Eb5.mp3','Eb6': '/upigr_samples/strings_slow_1/Eb6.mp3','Eb7': '/upigr_samples/strings_slow_1/Eb7.mp3','F0': '/upigr_samples/strings_slow_1/F0.mp3','F1': '/upigr_samples/strings_slow_1/F1.mp3','F2': '/upigr_samples/strings_slow_1/F2.mp3','F3': '/upigr_samples/strings_slow_1/F3.mp3','F4': '/upigr_samples/strings_slow_1/F4.mp3','F5': '/upigr_samples/strings_slow_1/F5.mp3','F6': '/upigr_samples/strings_slow_1/F6.mp3','F7': '/upigr_samples/strings_slow_1/F7.mp3','G0': '/upigr_samples/strings_slow_1/G0.mp3','G1': '/upigr_samples/strings_slow_1/G1.mp3','G2': '/upigr_samples/strings_slow_1/G2.mp3','G3': '/upigr_samples/strings_slow_1/G3.mp3','G4': '/upigr_samples/strings_slow_1/G4.mp3','G5': '/upigr_samples/strings_slow_1/G5.mp3','G6': '/upigr_samples/strings_slow_1/G6.mp3','G7': '/upigr_samples/strings_slow_1/G7.mp3','Gb0': '/upigr_samples/strings_slow_1/Gb0.mp3','Gb1': '/upigr_samples/strings_slow_1/Gb1.mp3','Gb2': '/upigr_samples/strings_slow_1/Gb2.mp3','Gb3': '/upigr_samples/strings_slow_1/Gb3.mp3','Gb4': '/upigr_samples/strings_slow_1/Gb4.mp3','Gb5': '/upigr_samples/strings_slow_1/Gb5.mp3','Gb6': '/upigr_samples/strings_slow_1/Gb6.mp3','Gb7': '/upigr_samples/strings_slow_1/Gb7.mp3'}, onload: () => { console.log('..strings_slow_1 Samples loaded..');}}).connect(reverb);";
+
+
+// private
+
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,28 @@
+
+2024/3/16
+
+Live de Impressions_1
+
+
+2024/3/2022
+
+Ir cambiando en post.setValue por console.log
+
+
+__________
+Search:
+
+// Helps
+
+
+
+__________
+Make reference:
+
+1. Write on /upigr_docs/uPIGr-ATS-1_reference.txt
+2. copy commands/functions/variables/snippets
+3. transform online on variable
+https://www.howtocreate.co.uk/tutorials/jsexamples/syntax/prepareInline.html
+4. insert on variable on helps (search "// Helps")
+
+___________

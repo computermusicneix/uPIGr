@@ -1,0 +1,80 @@
+1. Tipos de estructuras musicales:
+
+1.1. El compás:
+
+- Generación:
+
+newRear(timeAlt,notesTimes,velocity,silence)  Ámbito de rear: C2 (36) - B2 (47)
+newLeft(timeAlt,notesTimes,velocity,silence)  Ámbito de left: C3 (48) - B3 (59)
+newRight(timeAlt,notesTimes,velocity,silence) Ámbito de left: C4 (60) - B4 (71)
+newFront(timeAlt,notesTimes,velocity,silence) Ámbito de left: C5 (72) - B5 (83)
+
+Ejemplo:
+
+newRear("x2",[0.5,0.25],[80,120],2);
+
+- timeAlt es un string modificador del tiempo principal mtime.
+Ejemplos: 
+"/4","/2","x1","x2","x3"
+
+- notesTimes es un array de divisores para las notas individuales expresados en 0.x.
+Ejemplo:
+mdivs = [0.75,0.5,0.375,0.25,0.125];
+
+- velocity es un array de posibles velocidades expresadas en MIDI.
+Ejemplo:
+velos = [33,55,66]
+
+- silence es un número que inserta x silencios (0 en velocidad MIDI) en el array de velocidades
+Ejemplo:
+2
+
+
+
+Cada vez que se genera un nuevo compás se añade a la memoria y al secuenciador correspondiente.
+
+Nota: Al inicio de generan 12 lefts y 12 rights aleatorios y se guardan en la leftMemory y rightMemory de 0 a 11.
+
+- Memoria: leftMemory y rightMemory
+
+La podemos llamar e insertar en el secuenciador con:
+getLeft(int) : Recupera la memoria int de leftMemory.
+getRight(int) : Recupera la memoria int de rightMemory.
+
+1.2. El patrón:
+
+- Generación:
+
+leftPattern(number,repo)
+rightPattern(number,repo) 
+
+- Memoria: leftMemoryPattern y rightMemoryPattern
+
+La podemos llamar e insertar en el secuenciador con:
+getLeftPattern(int) : Recupera la memoria int de leftMemoryPattern.
+getRightPattern(int) : Recupera la memoria int de rightMemoryPattern.
+
+
+1.3. Drone:
+
+- Generación:
+
+leftDrone(mtimeAlt,velocity)
+rightDrone(mtimeAlt,velocity)
+
+- Memoria: leftMemoryDrone y rightMemoryDrone
+
+La podemos llamar e insertar en el secuenciador con:
+getLeftDrone(int) : Recupera la memoria int de leftMemoryDrone.
+getRightDrone(int) : Recupera la memoria int de rightMemoryDrone.
+
+Entorno gráfico de usuario:
+
+Ventanas principales:
+
+- Editor de código. (Para insertar código javascript y funciones de uPIGr) El código se evalúa escribiendo .. + intro en la línea de comandos.
+- Línea de comandos. (Para comandos de control) Los  comandos se evalúan con el intro.
+- Ventana de información. (Para imprimir información)
+
+
+
