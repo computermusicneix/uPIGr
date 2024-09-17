@@ -27,7 +27,7 @@ Authors: [Miquel Parera & Gonzorobot](http://gonzorobot.com/)
 
 1.Download and unzip the folder: 
 
-[uPIGr folder](http://gonzorobot.com/)
+[uPIGr folder](https://github.com/computermusicneix/uPIGr/archive/refs/heads/main.zip)
 
 2.Open a terminal in the uncompressed folder an type:
 
