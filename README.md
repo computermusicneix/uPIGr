@@ -21,7 +21,7 @@ Authors: [Miquel Parera & Gonzorobot](http://gonzorobot.com/)
 
 ### Web
 
-[uPIGr](http://gonzorobot.com/uPIGr.html)
+[uPIGr](http://gonzorobot.com/upigr.html)
 
 ### Localhost (desktop and mobile)
 
